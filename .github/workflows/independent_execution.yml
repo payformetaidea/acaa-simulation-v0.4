@@ -1,0 +1,64 @@
+name: ACAA Engine v0.4 — Independent Execution (Gatekeeper)
+
+on:
+  workflow_dispatch:  # فقط به‌صورت دستی اجرا شود
+
+jobs:
+  independent-execution:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+
+      - name: Run Baseline
+        run: |
+          python3 value_flow_simulator_v0.4.py --scenario baseline --output baseline_v0.4.json
+
+      - name: Run Attack Scenarios
+        run: |
+          python3 value_flow_simulator_v0.4.py --scenario sybil --output sybil_v0.4.json
+          python3 value_flow_simulator_v0.4.py --scenario collusion --output collusion_v0.4.json
+          python3 value_flow_simulator_v0.4.py --scenario spam --output spam_v0.4.json
+          python3 value_flow_simulator_v0.4.py --scenario gate_inflation --output gate_inflation_v0.4.json
+          python3 value_flow_simulator_v0.4.py --scenario strategic_abstention --output abstention_v0.4.json
+          python3 value_flow_simulator_v0.4.py --scenario negative_exploitation --output exploitation_v0.4.json
+
+      - name: Run Sensitivity Analysis
+        run: |
+          python3 value_flow_simulator_v0.4.py --sensitivity lam --output sens_lam_v0.4.json
+          python3 value_flow_simulator_v0.4.py --sensitivity delta --output sens_delta_v0.4.json
+          python3 value_flow_simulator_v0.4.py --sensitivity pi_c --output sens_pi_c_v0.4.json
+          python3 value_flow_simulator_v0.4.py --sensitivity alpha_threshold --output sens_alpha_v0.4.json
+          python3 value_flow_simulator_v0.4.py --sensitivity pi_p --output sens_pi_p_v0.4.json
+
+      - name: Run Multi-Seed
+        run: |
+          python3 value_flow_simulator_v0.4.py --multi-seed --output multi_seed_v0.4.json
+
+      - name: Run Regression Tests
+        run: |
+          python3 value_flow_simulator_v0.4.py --regression > regression_log_v0.4.txt 2>&1
+
+      - name: Generate Artifact Hashes
+        run: |
+          sha256sum *.json *.txt *.md > MANIFEST_SHA256_v0.4.txt
+
+      - name: Upload All Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: acaa-engine-v0.4-independent-artifacts
+          path: |
+            *.json
+            *.txt
+            *.md
+          retention-days: 7
