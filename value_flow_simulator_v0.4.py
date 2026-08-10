@@ -4,7 +4,7 @@
 ACAA Cognitive Value Economy — Value Flow Simulation Engine v0.4
 ============================================================================
 Track:      Research Only
-Status:     P0 COMPLETE RELEASE (Abstention Fixed)
+Status:     P0 COMPLETE RELEASE (Syntax Fixed)
 Based on:  Specification v0.3 (FROZEN)
 Patches:   P0-1 Runtime Correctness
            P0-2 Ground Truth Isolation (Collusion Detection)
@@ -806,13 +806,17 @@ class ValueFlowSim:
         self._adaptive_governance()
         self._record()
 
+    # =====================================================================
+    # FIXED: Correct syntax for _eval_gate
+    # =====================================================================
     def _eval_gate(self, q: float, gt: GateType) -> Verdict:
         cfg = self.gates[gt]
         adj = q + self.rng.uniform(-cfg.noise, cfg.noise)
         if adj >= cfg.threshold:
             return Verdict.PASS
         if adj >= cfg.threshold * 0.8:
-            return Verdict.QUERY        return Verdict.FAIL
+            return Verdict.QUERY
+        return Verdict.FAIL
 
     def _make_cau(self, agent: Agent, action: ActionType, verdict: Verdict,
                   q: float, cx: float, ind: float, neg: bool = False,
