@@ -1,0 +1,22 @@
+name: ACAA Engine v0.4 — Regression Tests
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Run Regression Tests
+        run: |
+          python3 value_flow_simulator_v0.4.py --regression
