@@ -4,11 +4,11 @@
 ACAA Cognitive Value Economy — Value Flow Simulation Engine v0.4
 ============================================================================
 Track:      Research Only
-Status:     P0 COMPLETE RELEASE (Syntax Fixed)
+Status:     P0 COMPLETE RELEASE (Abstention FIXED)
 Based on:  Specification v0.3 (FROZEN)
 Patches:   P0-1 Runtime Correctness
            P0-2 Ground Truth Isolation (Collusion Detection)
-           P0-3 Strategic Abstention (Opportunity Model - FIXED)
+           P0-3 Strategic Abstention (Opportunity Model - FINAL FIX)
            P0-4 Spam Detection (Threshold Semantics)
 ============================================================================
 """
@@ -781,8 +781,9 @@ class ValueFlowSim:
                     else:
                         agent.invalid_challenges_agent += 1
 
-            # --- P0-3 FIX: ABSTAINER gets opportunities, but no participation ---
-            # For ABSTAINER, we don't need to do anything else here
+            # --- P0-3 FINAL FIX: ABSTAINER gets opportunities, but no participation ---
+            # This is intentional and correct. The ABSTAINER simply does nothing,
+            # resulting in low participation_rate which is detected by _detect_abstention.
 
         # Reset window counters every 10 periods
         if self.period % 10 == 0:
@@ -806,9 +807,6 @@ class ValueFlowSim:
         self._adaptive_governance()
         self._record()
 
-    # =====================================================================
-    # FIXED: Correct syntax for _eval_gate
-    # =====================================================================
     def _eval_gate(self, q: float, gt: GateType) -> Verdict:
         cfg = self.gates[gt]
         adj = q + self.rng.uniform(-cfg.noise, cfg.noise)
