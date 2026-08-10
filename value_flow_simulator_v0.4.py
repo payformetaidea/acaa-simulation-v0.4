@@ -4,7 +4,7 @@
 ACAA Cognitive Value Economy — Value Flow Simulation Engine v0.4
 ============================================================================
 Track:      Research Only
-Status:     P0 COMPLETE RELEASE (Abstention FIXED)
+Status:     P0 COMPLETE RELEASE (Abstention FINAL FIX)
 Based on:  Specification v0.3 (FROZEN)
 Patches:   P0-1 Runtime Correctness
            P0-2 Ground Truth Isolation (Collusion Detection)
@@ -568,7 +568,7 @@ class ValueFlowSim:
                     "change_source": cfg.change_source
                 })
 
-    # P0-3 FIX: Strategic Abstention detection with proper opportunity model
+    # P0-3 FINAL FIX: Strategic Abstention detection with proper opportunity model
     def _detect_abstention(self):
         # Window-based participation tracking
         for agent in self.agents.values():
