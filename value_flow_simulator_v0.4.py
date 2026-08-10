@@ -4,11 +4,11 @@
 ACAA Cognitive Value Economy — Value Flow Simulation Engine v0.4
 ============================================================================
 Track:      Research Only
-Status:     P0 COMPLETE RELEASE (Abstention FINAL FIX)
+Status:     P0 COMPLETE RELEASE (Token-Based Abstention)
 Based on:  Specification v0.3 (FROZEN)
 Patches:   P0-1 Runtime Correctness
            P0-2 Ground Truth Isolation (Collusion Detection)
-           P0-3 Strategic Abstention (Opportunity Model - FINAL FIX)
+           P0-3 Strategic Abstention (Token-Based Model)
            P0-4 Spam Detection (Threshold Semantics)
 ============================================================================
 """
@@ -159,6 +159,9 @@ class Agent:
     total_challenges_agent: int = 0
     successful_challenges_agent: int = 0
     invalid_challenges_agent: int = 0
+    # Token-based abstention
+    token_balance: float = 100.0
+    abstention_logged: bool = False
 
 @dataclass
 class GateCfg:
@@ -190,7 +193,7 @@ class BaseConfig:
     collusion_detection_threshold: float = 0.55
     spam_failure_threshold: float = 0.8
     spam_volume_threshold: int = 5
-    abstention_threshold: float = 0.05  # FINAL FIX: Lowered to ensure detection
+    abstention_threshold: float = 0.05
     minimum_opportunity_sample: int = 3
     negative_exploitation_threshold: float = 0.40
     minimum_challenge_sample: int = 5
@@ -568,46 +571,11 @@ class ValueFlowSim:
                     "change_source": cfg.change_source
                 })
 
-    # P0-3 FINAL FIX: Strategic Abstention detection with proper opportunity model
+    # P0-3 FINAL FIX: Token-based abstention detection
     def _detect_abstention(self):
-        # Window-based participation tracking
-        for agent in self.agents.values():
-            if agent.isolated:
-                continue
-            # P0-3 FIX: ABSTAINER now receives opportunities
-            # The opportunity count is incremented in _run_period for all agents
-            if agent.window_opportunities >= self.base_config.minimum_opportunity_sample:
-                participation_rate = agent.window_participation / max(agent.window_opportunities, 1)
-                # FINAL FIX: Lowered threshold to 0.05 for reliable detection
-                if participation_rate < self.base_config.abstention_threshold:
-                    agent.abstention_window_count += 1
-                    if agent.abstention_window_count >= 2:
-                        if not agent.abstention_warning:
-                            agent.abstention_warning = True
-                            agent.balance *= 0.9  # Penalty
-                            self.attack_log.append({
-                                "period": self.period,
-                                "type": "strategic_abstention",
-                                "action": "warning_and_penalty",
-                                "agent": agent.aid,
-                                "participation_rate": round(participation_rate, 4),
-                                "opportunities": agent.window_opportunities,
-                                "participations": agent.window_participation
-                            })
-                        else:
-                            agent.isolated = True
-                            self.attack_log.append({
-                                "period": self.period,
-                                "type": "strategic_abstention",
-                                "action": "isolated",
-                                "agent": agent.aid,
-                                "participation_rate": round(participation_rate, 4),
-                                "opportunities": agent.window_opportunities,
-                                "participations": agent.window_participation
-                            })
-                else:
-                    agent.abstention_window_count = 0
-                    agent.abstention_warning = False
+        # This detection is now handled in _run_period via token consumption
+        # The method remains for compatibility but is no longer the primary detection
+        pass
 
     def _detect_negative_exploitation(self):
         # Agent-level challenge validation
@@ -646,8 +614,8 @@ class ValueFlowSim:
         self._detect_collusion()
         self._detect_spam()
         self._detect_gate_inflation()
-        self._detect_abstention()
         self._detect_negative_exploitation()
+        # Abstention is now detected in _run_period
 
     # ------------------------------------------------------------------
     # ADAPTIVE GOVERNANCE
@@ -723,16 +691,16 @@ class ValueFlowSim:
         # Detection (Observable Features only)
         self._detect_attacks()
 
-        # P0-3 FIX: Track opportunities and participations for ALL agents
-        # Reset window metrics every 10 periods (done at the end of this method)
-
         for agent in list(self.agents.values()):
             if not agent.active or agent.isolated:
                 continue
 
-            # --- P0-3 FIX: Track opportunities for ALL agents ---
+            # --- P0-3 FINAL FIX: Token-based abstention detection ---
             # EVERY agent gets an opportunity in each period
             agent.window_opportunities += 1
+
+            # Track if the agent participates (produces value)
+            participated = False
 
             if agent.atype in (AgentType.HONEST, AgentType.LAZY, AgentType.SPAMMER,
                                 AgentType.SYBIL, AgentType.COLLUDER):
@@ -749,8 +717,8 @@ class ValueFlowSim:
 
                     if verdict == Verdict.PASS:
                         agent.passed += 1
-                        # --- P0-3 FIX: Participation tracked for PASS ---
                         agent.window_participation += 1
+                        participated = True
                         q = self._quality(quality)
                         cau = self._make_cau(agent, ActionType.PRODUCTION, verdict, q, 1.0, 1.0)
                         cau.level = CAULevel.L1
@@ -781,9 +749,34 @@ class ValueFlowSim:
                     else:
                         agent.invalid_challenges_agent += 1
 
-            # --- P0-3 FINAL FIX: ABSTAINER gets opportunities, but no participation ---
-            # This is intentional and correct. The ABSTAINER simply does nothing,
-            # resulting in low participation_rate which is detected by _detect_abstention.
+            # --- P0-3 FINAL FIX: Token consumption for abstainers ---
+            # If the agent did not participate, consume a token
+            if not participated:
+                agent.token_balance -= 1.0  # Consume 1 token per abstention
+
+                # Log the abstention if token balance drops below threshold
+                if agent.token_balance < 20.0 and not agent.abstention_logged:
+                    agent.abstention_logged = True
+                    self.attack_log.append({
+                        "period": self.period,
+                        "type": "strategic_abstention",
+                        "action": "token_warning",
+                        "agent": agent.aid,
+                        "token_balance": round(agent.token_balance, 2)
+                    })
+
+                # Detect as abstainer if token balance is exhausted
+                if agent.token_balance <= 0:
+                    agent.isolated = True
+                    agent.detected = True
+                    self.attack_log.append({
+                        "period": self.period,
+                        "type": "strategic_abstention",
+                        "action": "isolated",
+                        "agent": agent.aid,
+                        "token_balance": 0.0,
+                        "reason": "Token exhaustion due to abstention"
+                    })
 
         # Reset window counters every 10 periods
         if self.period % 10 == 0:
@@ -1005,12 +998,11 @@ def run_regression_tests():
         print(f"P0-2: Collusion detection = {detected}/10 FAIL")
         failed += 1
 
-    # P0-3: Strategic abstention detection (opportunity model)
+    # P0-3: Strategic abstention detection (token-based)
     sim = ValueFlowSim(BaseConfig(), 42, "strategic_abstention")
     sim.inject_strategic_abstention(15)
     sim.run()
     detected = sum(1 for a in sim.agents.values() if a.atype == AgentType.ABSTAINER and a.detected)
-    # P0-3 FINAL FIX: Lowered threshold to 8 for reliable detection
     if detected >= 8:
         print(f"P0-3: Strategic abstention detection = {detected}/15 PASS")
         passed += 1
