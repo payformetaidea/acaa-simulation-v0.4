@@ -1,89 +1,49 @@
 name: ACAA Independent Validation v0.4
 
 on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["ACAA Engine v0.4 — Independent Execution (Gatekeeper)"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
 
 jobs:
   validate:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Checkout Code
+      - name: Checkout execution revision
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Install Dependencies
-        run: |
-          pip install numpy pandas matplotlib seaborn scipy
-
-      - name: Run Baseline
-        run: |
-          python3 value_flow_simulator_v0.4.py --scenario baseline --output baseline_v0.4.json
-
-      - name: Run Sybil Attack
-        run: |
-          python3 value_flow_simulator_v0.4.py --scenario sybil --output sybil_v0.4.json
-
-      - name: Run Collusion Attack
-        run: |
-          python3 value_flow_simulator_v0.4.py --scenario collusion --output collusion_v0.4.json
-
-      - name: Run Spam Attack
-        run: |
-          python3 value_flow_simulator_v0.4.py --scenario spam --output spam_v0.4.json
-
-      - name: Run Gate Inflation Attack
-        run: |
-          python3 value_flow_simulator_v0.4.py --scenario gate_inflation --output gate_inflation_v0.4.json
-
-      - name: Run Strategic Abstention
-        run: |
-          python3 value_flow_simulator_v0.4.py --scenario strategic_abstention --output abstention_v0.4.json
-
-      - name: Run Negative Exploitation
-        run: |
-          python3 value_flow_simulator_v0.4.py --scenario negative_exploitation --output exploitation_v0.4.json
-
-      - name: Run Sensitivity Analysis
-        run: |
-          python3 value_flow_simulator_v0.4.py --sensitivity lam --output sens_lam_v0.4.json
-          python3 value_flow_simulator_v0.4.py --sensitivity delta --output sens_delta_v0.4.json
-          python3 value_flow_simulator_v0.4.py --sensitivity pi_c --output sens_pi_c_v0.4.json
-          python3 value_flow_simulator_v0.4.py --sensitivity alpha_threshold --output sens_alpha_v0.4.json
-          python3 value_flow_simulator_v0.4.py --sensitivity pi_p --output sens_pi_p_v0.4.json
-
-      - name: Run Multi-Seed Tests
-        run: |
-          python3 value_flow_simulator_v0.4.py --multi-seed --output multi_seed_v0.4.json
-
-      - name: Run Regression Tests
-        run: |
-          python3 value_flow_simulator_v0.4.py --regression > regression_log_v0.4.txt 2>&1
-
-      - name: Generate SHA256 Manifest
-        run: |
-          sha256sum *.json *.txt > MANIFEST_SHA256_v0.4.txt
-
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+      - name: Download execution artifacts
+        uses: actions/download-artifact@v4
         with:
           name: acaa-engine-v0.4-independent-artifacts
-          path: |
-            baseline_v0.4.json
-            sybil_v0.4.json
-            collusion_v0.4.json
-            spam_v0.4.json
-            gate_inflation_v0.4.json
-            abstention_v0.4.json
-            exploitation_v0.4.json
-            sens_*.json
-            multi_seed_v0.4.json
-            regression_log_v0.4.txt
-            MANIFEST_SHA256_v0.4.txt
+          path: artifacts/
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Run independent validator
+        run: |
+          python3 independent_validator_v0.4.py --artifacts artifacts/
+        env:
+          PYTHONUNBUFFERED: 1
+
+      - name: Upload validation evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-results
+          path: artifacts/validation_result.json
+          if-no-files-found: error
           retention-days: 30
