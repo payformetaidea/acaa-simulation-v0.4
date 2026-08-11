@@ -51,14 +51,41 @@ jobs:
 
       - name: Generate Artifact Hashes
         run: |
-          sha256sum *.json *.txt *.md > MANIFEST_SHA256_v0.4.txt
+          sha256sum \
+            baseline_v0.4.json \
+            sybil_v0.4.json \
+            collusion_v0.4.json \
+            spam_v0.4.json \
+            gate_inflation_v0.4.json \
+            abstention_v0.4.json \
+            exploitation_v0.4.json \
+            sens_lam_v0.4.json \
+            sens_delta_v0.4.json \
+            sens_pi_c_v0.4.json \
+            sens_alpha_v0.4.json \
+            sens_pi_p_v0.4.json \
+            multi_seed_v0.4.json \
+            regression_log_v0.4.txt \
+            > MANIFEST_SHA256_v0.4.txt
 
       - name: Upload All Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: acaa-engine-v0.4-independent-artifacts
           path: |
-            *.json
-            *.txt
-            *.md
+            baseline_v0.4.json
+            sybil_v0.4.json
+            collusion_v0.4.json
+            spam_v0.4.json
+            gate_inflation_v0.4.json
+            abstention_v0.4.json
+            exploitation_v0.4.json
+            sens_lam_v0.4.json
+            sens_delta_v0.4.json
+            sens_pi_c_v0.4.json
+            sens_alpha_v0.4.json
+            sens_pi_p_v0.4.json
+            multi_seed_v0.4.json
+            regression_log_v0.4.txt
+            MANIFEST_SHA256_v0.4.txt
           retention-days: 7
