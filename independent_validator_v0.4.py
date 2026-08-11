@@ -87,7 +87,8 @@ def check_manifest(root):
             if not os.path.isfile(path):
                 failures.append(f"Manifest file missing: {filename}")
                 continue
-            actual = hashlib.sha256(open(path, "rb").read()).hexdigest()
+            with open(path, "rb") as fh:
+                actual = hashlib.sha256(fh.read()).hexdigest()
             entries += 1
             if actual.lower() != expected.lower():
                 failures.append(f"SHA256 mismatch: {filename}")
@@ -158,8 +159,6 @@ def check_sensitivity(sensitivity):
 def check_provenance(artifacts):
     mismatches = []
     for name, data in artifacts.items():
-        if name not in REQUIRED_SCENARIOS:
-            continue
         if data["provenance_events"] != data["cau_records"]:
             mismatches.append(
                 f"{name}: provenance_events={data['provenance_events']} cau_records={data['cau_records']}"
@@ -174,15 +173,13 @@ def check_cau_uniqueness(artifacts):
     # Therefore this check is intentionally limited to the architecture-level
     # invariant that metric periods are sequential and the reported count is valid.
     for name, data in artifacts.items():
-        if name not in REQUIRED_SCENARIOS:
-            continue
         if data["cau_records"] < 0:
             return False, f"Invalid CAU count in {name}"
     return True, "Architecture criterion: sequential metric periods and valid CAU counts"
 
 
 def check_adaptive(artifacts):
-    events = sum(len(artifacts[name]["adaptive_log"]) for name in REQUIRED_SCENARIOS)
+    events = sum(len(data["adaptive_log"]) for data in artifacts.values())
     return (events >= 1, f"{events} adaptive events")
 
 
@@ -199,9 +196,11 @@ def check_multi_seed(data):
 
 def check_regression(path):
     text = open(path, "r", encoding="utf-8").read()
-    if "Regression:" not in text or "FAIL" in text:
-        return False, "Regression log does not show a clean PASS result"
-    return True, "Regression log reports a clean result"
+    match = re.search(r"Regression:\s*(\d+)\s+PASS\s*/\s*(\d+)\s+FAIL", text)
+    if not match:
+        return False, "Regression summary not found"
+    passed, failed = int(match.group(1)), int(match.group(2))
+    return (failed == 0, f"Regression: {passed} PASS / {failed} FAIL")
 
 
 def main():
