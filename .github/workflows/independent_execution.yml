@@ -3,6 +3,9 @@ name: ACAA Engine v0.4 — Independent Execution (Gatekeeper)
 on:
   workflow_dispatch:  # فقط به‌صورت دستی اجرا شود
 
+permissions:
+  contents: read
+
 jobs:
   independent-execution:
     runs-on: ubuntu-latest
@@ -88,4 +91,4 @@ jobs:
             multi_seed_v0.4.json
             regression_log_v0.4.txt
             MANIFEST_SHA256_v0.4.txt
-          retention-days: 7
+          retention-days: 30
