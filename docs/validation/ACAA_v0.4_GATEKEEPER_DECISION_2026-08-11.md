@@ -4,8 +4,18 @@
 **Project:** ACAA — Adaptive Cognitive Architecture  
 **Version:** v0.4  
 **Repository:** `payformetaidea/acaa-simulation-v0.4`  
-**Gatekeeper:** Pouria Valaee  
+
+## Creator / Author / Gatekeeper
+
+**Full Name:** Pouria Valaee  
+**Email:** pouria@pouriavalaee.ir  
+**LinkedIn:** https://www.linkedin.com/in/pouria-valaee-6746a6208/  
+**Personal Website:** https://pouriavalaee.ir  
 **Role:** Creator / Author / Gatekeeper  
+
+> **Authorship and project provenance of ACAA v0.4 are attributed to Pouria Valaee through the project's source metadata, version-controlled history, validation artifacts, and canonical records.**
+>
+> This provenance statement documents project-level attribution. It does not by itself constitute formal legal registration or a legal determination of intellectual-property ownership.
 
 ## Decision
 
@@ -106,7 +116,17 @@ This decision does **not** by itself establish:
 
 ## Provenance
 
-The independent validator identifies **Pouria Valaee** as Author / project provenance holder in its source metadata. This record documents the project-level attribution and Gatekeeper decision. It does not constitute formal legal IP registration.
+The independent validator identifies **Pouria Valaee** as Author / project provenance holder in its source metadata. This record explicitly preserves the following attribution details for ACAA v0.4:
+
+| Attribution Field | Official Attribution |
+|---|---|
+| Full Name | **Pouria Valaee** |
+| Email | **pouria@pouriavalaee.ir** |
+| LinkedIn | **https://www.linkedin.com/in/pouria-valaee-6746a6208/** |
+| Personal Website | **https://pouriavalaee.ir** |
+| Project Role | **Creator / Author / Gatekeeper** |
+
+This provenance record documents project-level attribution and authorship evidence. It does not constitute formal legal IP registration or independently determine legal ownership under any jurisdiction.
 
 ## Canonical Status After Decision
 
@@ -127,7 +147,10 @@ Step 8 Status                    COMPLETE
 
 ## Formal Sign-Off
 
-**Gatekeeper:** Pouria Valaee  
+**Creator / Author:** Pouria Valaee  
+**Email:** pouria@pouriavalaee.ir  
+**LinkedIn:** https://www.linkedin.com/in/pouria-valaee-6746a6208/  
+**Personal Website:** https://pouriavalaee.ir  
 **Role:** Creator / Author / Gatekeeper  
 **Decision Date:** 2026-08-11  
 **Decision:** **PASS**
