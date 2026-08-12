@@ -38,31 +38,79 @@ jobs:
           echo "O1_EXIT_CODE=${status}" | tee -a o1_execution.log
           exit "${status}"
 
-      - name: O1 Failure Diagnostics
-        if: ${{ failure() }}
+      - name: Prepare Independent Evidence Package
+        if: ${{ success() }}
         run: |
-          if [ -f o1_execution.log ]; then
-            tail -c 6000 o1_execution.log | sed 's/%/%25/g' | sed 's/\r/%0D/g' | sed 's/\n/%0A/g' | xargs -0 -r echo '::error title=O1 execution diagnostics::'
-            cat o1_execution.log
-          fi
+          python3 prepare_o1_independent_evidence_v0_5.py \
+            --evidence-dir o1_evidence \
+            --commit "${GITHUB_SHA}"
 
-      - name: Verify O1 Evidence Structure
+      - name: Full Regression CI
+        if: ${{ success() }}
+        run: |
+          set +e
+          python3 -m unittest discover -s tests -p 'test*.py' -v 2>&1 | tee regression.log
+          status=${PIPESTATUS[0]}
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          Path('regression_status.json').write_text(json.dumps({
+              'status': 'PASS' if os.environ.get('REGRESSION_STATUS') == 'PASS' else 'UNKNOWN',
+              'commit': os.environ['GITHUB_SHA'],
+          }, indent=2), encoding='utf-8')
+          PY
+          if [ "${status}" -eq 0 ]; then
+            python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          Path('regression_status.json').write_text(json.dumps({
+              'status': 'PASS', 'commit': os.environ['GITHUB_SHA']
+          }, indent=2), encoding='utf-8')
+          PY
+          else
+            python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          Path('regression_status.json').write_text(json.dumps({
+              'status': 'FAIL', 'commit': os.environ['GITHUB_SHA']
+          }, indent=2), encoding='utf-8')
+          PY
+          fi
+          exit "${status}"
+        env:
+          REGRESSION_STATUS: PASS
+
+      - name: Independent O1 Evidence Validation
+        if: ${{ success() }}
+        run: |
+          python3 independent_o1_validator_v0_5.py \
+            --evidence-dir o1_evidence \
+            --regression-status regression_status.json \
+            --commit "${GITHUB_SHA}"
+
+      - name: O1 Evidence Structure
         if: ${{ success() }}
         run: |
           python3 - <<'PY'
           import json
           from pathlib import Path
-          p = Path('o1_evidence/o1_evidence.json')
+          p = Path('o1_evidence/independent_validation.json')
           data = json.loads(p.read_text(encoding='utf-8'))
-          assert data['objective'] == 'O1'
-          assert data['protocol']['planned_seed_set'] == data['protocol']['executed_seed_set']
-          assert data['protocol']['seed_count'] == 12
-          assert len(data['configuration']['base_fingerprints']) == 1
-          assert len(data['configuration']['engine_hashes']) == 1
-          assert len(data['runs']) == 12
-          assert all(len(r['artifact_digest']) == 64 for r in data['runs'])
-          print('O1 evidence structure: PASS')
+          assert data['status'] == 'PASS'
+          assert all(v == 'PASS' for v in data['predicates'].values())
+          assert all(v == 'PASS' for v in data['negative_cases'].values())
+          print('Independent O1 evidence validation: PASS')
           PY
+
+      - name: O1 Failure Diagnostics
+        if: ${{ failure() }}
+        run: |
+          if [ -f o1_execution.log ]; then
+            cat o1_execution.log
+          fi
+          if [ -f regression.log ]; then
+            tail -n 120 regression.log
+          fi
 
       - name: Upload O1 Evidence
         if: ${{ always() }}
@@ -72,5 +120,7 @@ jobs:
           path: |
             o1_evidence/
             o1_execution.log
+            regression.log
+            regression_status.json
           if-no-files-found: warn
           retention-days: 30
