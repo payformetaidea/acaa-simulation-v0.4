@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""ACAA v0.5 O1 — Multi-Seed Behavioral Characterization.
-
-The frozen v0.4 engine is loaded as an external module and invoked through its
-public ValueFlowSim API. The engine source and the v0.4 validator are not
-modified. This runner owns only the O1 experiment protocol and evidence layer.
-"""
+"""ACAA v0.5 O1 — Multi-Seed Behavioral Characterization."""
 
 from __future__ import annotations
 
@@ -29,6 +24,7 @@ REQUIRED_TOP_LEVEL = {
     "attack_log", "adaptive_log", "provenance_events", "engine_hash",
     "config_hash", "effective_config", "execution_timestamp", "scenario", "random_seed",
 }
+O1_METADATA_FIELDS = {"o1_base_config_fingerprint"}
 
 
 class O1ContractError(ValueError):
@@ -40,6 +36,7 @@ def load_engine(path: Path):
     if spec is None or spec.loader is None:
         raise RuntimeError(f"cannot load engine module: {path}")
     module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module
 
@@ -74,10 +71,15 @@ def validate_artifact(data: Mapping[str, Any], expected_seed: int) -> None:
     missing = sorted(REQUIRED_TOP_LEVEL - set(data))
     if missing:
         raise O1ContractError(f"missing top-level fields: {', '.join(missing)}")
+    metadata_missing = sorted(O1_METADATA_FIELDS - set(data))
+    if metadata_missing:
+        raise O1ContractError(f"missing O1 metadata: {', '.join(metadata_missing)}")
     if data.get("scenario") != "baseline":
         raise O1ContractError(f"scenario must be baseline, got {data.get('scenario')!r}")
     if data.get("random_seed") != expected_seed:
         raise O1ContractError(f"seed mismatch: expected {expected_seed}, got {data.get('random_seed')!r}")
+    if not isinstance(data["o1_base_config_fingerprint"], str) or not data["o1_base_config_fingerprint"]:
+        raise O1ContractError("O1 base configuration fingerprint is invalid")
     if not isinstance(data["cau_records"], int) or data["cau_records"] < 0:
         raise O1ContractError("cau_records must be a non-negative integer")
     metrics = data["metrics"]
@@ -158,16 +160,19 @@ def summarize(values: Sequence[float]) -> Dict[str, Any]:
     }
 
 
-def run_one(engine: Any, seed: int, output: Path) -> None:
+def run_one(engine: Any, seed: int, output: Path) -> str:
     base_config = engine.BaseConfig()
+    base_fingerprint = base_config.get_fingerprint()
     sim = engine.ValueFlowSim(base_config, seed, "baseline")
     sim.run()
     result = sim.export()
     result["scenario"] = "baseline"
     result["execution_timestamp"] = datetime.now(timezone.utc).isoformat()
     result["random_seed"] = seed
+    result["o1_base_config_fingerprint"] = base_fingerprint
     with output.open("w", encoding="utf-8") as fh:
         json.dump(result, fh, indent=2, ensure_ascii=False)
+    return base_fingerprint
 
 
 def validate_protocol(records: Sequence[Mapping[str, Any]]) -> None:
@@ -207,7 +212,7 @@ def execute_protocol(engine_path: Path, output_dir: Path) -> Dict[str, Any]:
         records.append({
             "seed": seed,
             "path": str(output.relative_to(output_dir)),
-            "base_config_fingerprint": data["config_hash"],
+            "base_config_fingerprint": data["o1_base_config_fingerprint"],
             "effective_config_fingerprint": effective_config_identity(data),
             "engine_hash": data["engine_hash"],
             "execution_timestamp": data["execution_timestamp"],
