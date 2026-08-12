@@ -5,7 +5,7 @@
 **Repository:** `payformetaidea/acaa-simulation-v0.4`  
 **Baseline Release Commit:** `239fd30de9e9c22b8f3bab0303250cfa98774696`  
 **Validated Execution Commit:** `50892a3be4bf05b54283514ccc6fd4798703aa35`  
-**Research → Objective Gate:** PR #9 / head `57f8101966b7824890b504805c5e2c0e72dc3f5a`  
+**Research → Objective Gate:** PR #9 / branch `agent/research-to-objective-gate`  
 **Decision Date:** 2026-08-12
 
 ## 1. Purpose
