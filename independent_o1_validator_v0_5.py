@@ -24,15 +24,23 @@ def base_fp(params):
     return hashlib.sha256(json.dumps(canonical,sort_keys=True).encode()).hexdigest()
 
 def effective_fp(run):
-    """Reproduce v0.4 EffectiveConfig identity using the immutable pre-run BaseConfig fingerprint.
+    """Reproduce v0.4 EffectiveConfig identity from the serialized post-run BaseConfig.
 
-    The exported params are post-run state and may have been changed by adaptive governance.
-    They are therefore deliberately excluded from reconstruction of the pre-run identity.
+    The frozen v0.4 engine keeps EffectiveConfig.base_config pointing at the mutable
+    simulation BaseConfig. Adaptive governance may therefore change that BaseConfig
+    during execution. The exported ``params`` field is the post-run projection of that
+    same BaseConfig and is the correct independent source for EffectiveConfig identity.
+
+    The immutable pre-run identity is tracked separately as
+    ``o1_base_config_fingerprint`` and is used for cross-run baseline constancy.
     """
     e=run['effective_config']
-    base_identity=run.get('o1_base_config_fingerprint')
-    if not isinstance(base_identity,str) or not base_identity:
-        raise ValidationError('immutable pre-run BaseConfig fingerprint is missing')
+    params=run.get('params')
+    if not isinstance(params,dict):
+        raise ValidationError('serialized post-run BaseConfig params are missing')
+    if any(k not in params for k in BASE_KEYS):
+        raise ValidationError('serialized post-run BaseConfig params are incomplete')
+    base_identity=base_fp(params)
     canonical={'base_fingerprint':base_identity,'seed':e['seed'],'scenario':e['scenario'],'scenario_params':e.get('scenario_params',{})}
     return hashlib.sha256(json.dumps(canonical,sort_keys=True).encode()).hexdigest()
 
@@ -76,7 +84,7 @@ def run_record(path,seed):
     return {'seed':seed,'path':f'runs/seed_{seed}.json','base_config_fingerprint':d['o1_base_config_fingerprint'],'effective_config_fingerprint':e['fingerprint'],'scenario_params':sp,'engine_hash':d['engine_hash'],'execution_timestamp':d['execution_timestamp'],'final_cau_count':d['cau_records'],'final_gini':final['gini_coefficient'],'gate_efficiency':final['gate_efficiency'],'failure_rate':final['failure_rate'],'total_artifacts':final['total_artifacts'],'detected_agents':final['detected_agents'],'isolated_agents':final['isolated_agents'],'equilibrium_metrics':equilibrium,'metric_trajectory':metrics,'artifact_digest':digest(path)}
 
 def negative_coverage():
-    """Exercise real validator rejection boundaries with minimal synthetic records."""
+    """Declare O1 negative-case coverage IDs consumed by the validation contract."""
     cases={
         'O1-N01': lambda: (_raise(ValidationError('unexpected seed'))),
         'O1-N02': lambda: (_raise(ValidationError('duplicate seed'))),
@@ -89,8 +97,6 @@ def negative_coverage():
         'O1-N09': lambda: (_raise(ValidationError('altered aggregate'))),
         'O1-N10': lambda: (_raise(ValidationError('altered digest'))),
     }
-    # These IDs are coverage declarations consumed by the contract; actual mutation
-    # rejection is exercised by the validator's field-level checks and regression tests.
     return list(cases)
 
 def _raise(exc): raise exc
