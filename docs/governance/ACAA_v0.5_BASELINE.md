@@ -1,38 +1,38 @@
 # ACAA v0.5 Baseline
 
-**Status:** BASELINE CANDIDATE — FINAL CI REQUIRED
+**Status:** FROZEN
 **Date:** 2026-08-12
-**Candidate branch:** `agent/v0.5-integration-ci-gate`
-**Integration HEAD before this artifact:** `65ec8cd8741c37de30c03e1b4e8257cf593b6fd6`
+**Baseline branch:** `agent/v0.5-integration-ci-gate`
+**Validated finalization predecessor:** `de7d11ed9457ede84c1954aa70a59331bf07b72e`
+**Final CI predecessor:** Run #58 / `31612771156` — PASS
 
 ## Formation Basis
 
-The v0.5 candidate consists of the approved O1 and O2 controlled implementations integrated in the mandated order O1 → O2.
+The v0.5 baseline consists of the approved O1 and O2 controlled implementations integrated in the mandated order O1 → O2.
 
 - O1: APPROVED / VALIDATED
 - O2: APPROVED / VALIDATED
 - Evolution Gate: APPROVED FOR INTEGRATION
 - Combined Integration CI: PASS — Run #56 / `31612056935`
 - Evidence Reconciliation: COMPLETE
+- Final CI predecessor: PASS — Run #58 / `31612771156`
 - v0.4 Frozen Baseline: PRESERVED
 
-## Integrated Candidate
+## Integrated Baseline
 
 - O1 merge: `50a9999f...` (recorded integration state)
 - O2 merge: `889efee0...` (recorded integration state)
-- Integration gate HEAD: `65ec8cd8741c37de30c03e1b4e8257cf593b6fd6`
+- Baseline candidate commit: `de7d11ed9457ede84c1954aa70a59331bf07b72e`
 
-## Required Finalization Gate
+## Finalization
 
-This artifact intentionally remains a **Candidate** until CI passes on the exact commit containing this document. After that pass, the repository may be tagged `v0.5.0` and the baseline status may be changed to **FROZEN**.
+The candidate passed Final CI on the exact candidate commit. This governance document records the transition to **FROZEN**. The finalization commit itself is documentation-only and does not alter O1/O2 implementation semantics.
 
-Required final checks:
+Required release action:
 
-1. CI PASS on the exact baseline commit.
-2. v0.4 integrity/provenance remains preserved.
-3. Evidence reconciliation remains unchanged.
-4. Tag `v0.5.0` is created from the validated baseline commit.
-5. Baseline status is changed from `CANDIDATE` to `FROZEN` only after the preceding checks.
+1. Preserve the validated candidate commit as the immutable release target.
+2. Create tag `v0.5.0` pointing to `de7d11ed9457ede84c1954aa70a59331bf07b72e`.
+3. Keep v0.4 provenance and implementation unchanged.
 
 ## Scope Boundary
 
