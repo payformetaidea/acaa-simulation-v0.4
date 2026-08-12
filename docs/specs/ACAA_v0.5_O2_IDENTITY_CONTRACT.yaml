@@ -1,0 +1,112 @@
+schema: acaa.v0.5.o2.identity-contract
+version: "1.0"
+status: frozen-preimplementation
+objective: O2
+name: CAU Identity-Level Evidence Verification
+baseline:
+  release_anchor: 239fd30de9e9c22b8f3bab0303250cfa98774696
+  validated_execution_anchor: 50892a3be4bf05b54283514ccc6fd4798703aa35
+  semantics: immutable-v0.4
+identity_contract:
+  identifier:
+    field: cau_id
+    format: "^CAU-[0-9]{6}$"
+    current_candidate: "CAU-######"
+  uniqueness_scope: execution_artifact
+  uniqueness_required: true
+  reuse_policy: prohibited_within_scope
+  collision_policy: validation_failure
+  lifecycle:
+    creation: ledger_record_creation
+    export: identity_must_remain_resolvable
+    provenance: every_identity_link_must_resolve
+  ledger_relation:
+    one_identity_to_one_record: true
+    identity_count_equals_aggregate_count: true
+required_identity_fields:
+  - cau_id
+  - actor_id
+  - action
+  - verdict
+  - timestamp
+  - level
+  - provenance_linkage
+  - deterministic_record_representation
+aggregate_cross_check:
+  field: cau_records
+  meaning: aggregate_cau_count
+  mandatory: true
+integrity:
+  identity_evidence_in_manifest: true
+  deterministic_representation_required: true
+  post_manifest_mutation: validation_failure
+validation:
+  positive_predicates:
+    - id: O2-01
+      assertion: every_identity_matches_declared_format
+    - id: O2-02
+      assertion: identities_are_unique_within_declared_scope
+    - id: O2-03
+      assertion: identity_count == aggregate_cau_records
+    - id: O2-04
+      assertion: every_identity_maps_to_one_record
+    - id: O2-05
+      assertion: every_record_has_required_identity_fields
+    - id: O2-06
+      assertion: lifecycle_links_resolve
+    - id: O2-07
+      assertion: provenance_links_resolve
+    - id: O2-08
+      assertion: duplicate_or_collision_is_detectable
+    - id: O2-09
+      assertion: identity_evidence_is_integrity_bound
+    - id: O2-10
+      assertion: v0.4_provenance_and_regression_checks_pass
+  negative_cases:
+    - id: O2-N01
+      mutation: duplicate_cau_id
+      expected: validation_failure
+    - id: O2-N02
+      mutation: remove_cau_id
+      expected: validation_failure
+    - id: O2-N03
+      mutation: malformed_cau_id
+      expected: validation_failure
+    - id: O2-N04
+      mutation: mismatch_identity_and_aggregate_count
+      expected: validation_failure
+    - id: O2-N05
+      mutation: remove_provenance_linkage
+      expected: validation_failure
+    - id: O2-N06
+      mutation: create_dangling_provenance_reference
+      expected: validation_failure
+    - id: O2-N07
+      mutation: alter_lifecycle_linkage
+      expected: validation_failure
+    - id: O2-N08
+      mutation: alter_identity_record_after_manifest_creation
+      expected: validation_failure
+    - id: O2-N09
+      mutation: reuse_identity_within_scope
+      expected: validation_failure
+    - id: O2-N10
+      mutation: remove_identity_evidence_from_integrity_boundary
+      expected: validation_failure
+interpretation_boundary:
+  establishes:
+    - identity_level_evidence_integrity
+    - independent_identity_verifiability
+  does_not_establish:
+    - cau_behavioral_correctness
+    - cau_semantic_quality
+    - causal_validity
+    - system_level_effectiveness
+stop_conditions:
+  - v0.4_semantics_change_required
+  - identity_evidence_cannot_be_preserved_independently
+  - validator_independence_compromised
+  - provenance_contract_breaks
+  - integrity_binding_cannot_cover_identity_evidence
+  - acceptance_predicate_not_reproducible
+  - claim_exceeds_approved_objective_scope
