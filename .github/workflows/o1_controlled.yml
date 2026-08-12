@@ -38,6 +38,14 @@ jobs:
           echo "O1_EXIT_CODE=${status}" | tee -a o1_execution.log
           exit "${status}"
 
+      - name: O1 Failure Diagnostics
+        if: ${{ failure() }}
+        run: |
+          if [ -f o1_execution.log ]; then
+            tail -c 6000 o1_execution.log | sed 's/%/%25/g' | sed 's/\r/%0D/g' | sed 's/\n/%0A/g' | xargs -0 -r echo '::error title=O1 execution diagnostics::'
+            cat o1_execution.log
+          fi
+
       - name: Verify O1 Evidence Structure
         if: ${{ success() }}
         run: |
