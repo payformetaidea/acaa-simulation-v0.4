@@ -11,7 +11,7 @@ identity_contract:
   identifier:
     field: cau_id
     format: "^CAU-[0-9]{6}$"
-    current_candidate: "CAU-######"
+    format_status: frozen
   uniqueness_scope: execution_artifact
   uniqueness_required: true
   reuse_policy: prohibited_within_scope
@@ -32,6 +32,13 @@ required_identity_fields:
   - level
   - provenance_linkage
   - deterministic_record_representation
+canonical_representation:
+  format: json
+  encoding: utf-8
+  object_key_order: lexicographic
+  separators: [",", ":"]
+  ensure_ascii: false
+  hashing: sha256
 aggregate_cross_check:
   field: cau_records
   meaning: aggregate_cau_count
