@@ -10,6 +10,19 @@ baseline:
 protocol:
   seed_policy:
     count_min: 12
+    planned_seed_set:
+      - 42
+      - 137
+      - 256
+      - 512
+      - 1024
+      - 2048
+      - 4096
+      - 8192
+      - 16384
+      - 32768
+      - 65536
+      - 131072
     unique: true
     preregistered: true
     planned_seed_set_required: true
@@ -24,6 +37,20 @@ protocol:
   run_artifact:
     required: true
     preserved: true
+statistics:
+  formulas:
+    mean: arithmetic_mean
+    variance: population_variance
+    standard_deviation: population_standard_deviation
+    coefficient_of_variation: standard_deviation_divided_by_absolute_mean
+  outlier_rule:
+    method: tukey_1_5_iqr
+    lower_fence: Q1_minus_1_5_times_IQR
+    upper_fence: Q3_plus_1_5_times_IQR
+  edge_cases:
+    zero_mean_cv: null_with_reason_zero_mean
+    zero_variance: cv_zero_if_mean_nonzero
+    missing_data: never_imputed_for_primary_analysis
 required_evidence:
   - seed
   - base_config_fingerprint
@@ -42,20 +69,6 @@ required_evidence:
   - equilibrium_metrics
   - metric_trajectory
   - artifact_digest
-statistics:
-  required:
-    - valid_run_count
-    - mean
-    - standard_deviation
-    - variance
-    - coefficient_of_variation
-    - minimum
-    - maximum
-    - predefined_outlier_indicator
-    - per_metric_distribution_summary
-  edge_cases:
-    zero_mean_cv: explicit_declared_rule
-    zero_variance: distinguish_from_missing_data
 validation:
   positive_predicates:
     - id: O1-01
