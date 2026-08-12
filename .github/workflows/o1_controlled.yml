@@ -1,0 +1,126 @@
+name: ACAA v0.5 — O1 Controlled Implementation
+
+on:
+  push:
+    branches:
+      - agent/v0.5-controlled-implementation-o1
+  pull_request:
+    branches:
+      - agent/v0.5-implementation-design
+      - agent/research-to-objective-gate
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  o1-controlled:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Unit Tests — O1 Contract
+        run: |
+          python -m unittest discover -s tests -p 'test_o1_robustness_v0_5.py' -v
+
+      - name: O1 Controlled Execution
+        run: |
+          set +e
+          python3 o1_robustness_v0_5.py --engine value_flow_simulator_v0.4.py --output-dir o1_evidence 2>&1 | tee o1_execution.log
+          status=${PIPESTATUS[0]}
+          echo "O1_EXIT_CODE=${status}" | tee -a o1_execution.log
+          exit "${status}"
+
+      - name: Prepare Independent Evidence Package
+        if: ${{ success() }}
+        run: |
+          python3 prepare_o1_independent_evidence_v0_5.py \
+            --evidence-dir o1_evidence \
+            --commit "${GITHUB_SHA}"
+
+      - name: Full Regression CI
+        if: ${{ success() }}
+        run: |
+          set +e
+          python3 -m unittest discover -s tests -p 'test*.py' -v 2>&1 | tee regression.log
+          status=${PIPESTATUS[0]}
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          Path('regression_status.json').write_text(json.dumps({
+              'status': 'PASS' if os.environ.get('REGRESSION_STATUS') == 'PASS' else 'UNKNOWN',
+              'commit': os.environ['GITHUB_SHA'],
+          }, indent=2), encoding='utf-8')
+          PY
+          if [ "${status}" -eq 0 ]; then
+            python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          Path('regression_status.json').write_text(json.dumps({
+              'status': 'PASS', 'commit': os.environ['GITHUB_SHA']
+          }, indent=2), encoding='utf-8')
+          PY
+          else
+            python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          Path('regression_status.json').write_text(json.dumps({
+              'status': 'FAIL', 'commit': os.environ['GITHUB_SHA']
+          }, indent=2), encoding='utf-8')
+          PY
+          fi
+          exit "${status}"
+        env:
+          REGRESSION_STATUS: PASS
+
+      - name: Independent O1 Evidence Validation
+        if: ${{ success() }}
+        run: |
+          python3 independent_o1_validator_v0_5.py \
+            --evidence-dir o1_evidence \
+            --regression-status regression_status.json \
+            --commit "${GITHUB_SHA}"
+
+      - name: O1 Evidence Structure
+        if: ${{ success() }}
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('o1_evidence/independent_validation.json')
+          data = json.loads(p.read_text(encoding='utf-8'))
+          assert data['status'] == 'PASS'
+          assert all(v == 'PASS' for v in data['predicates'].values())
+          assert all(v == 'PASS' for v in data['negative_cases'].values())
+          print('Independent O1 evidence validation: PASS')
+          PY
+
+      - name: O1 Failure Diagnostics
+        if: ${{ failure() }}
+        run: |
+          if [ -f o1_execution.log ]; then
+            cat o1_execution.log
+          fi
+          if [ -f regression.log ]; then
+            tail -n 120 regression.log
+          fi
+
+      - name: Upload O1 Evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: acaa-v0.5-o1-evidence-${{ github.run_id }}
+          path: |
+            o1_evidence/
+            o1_execution.log
+            regression.log
+            regression_status.json
+          if-no-files-found: warn
+          retention-days: 30
