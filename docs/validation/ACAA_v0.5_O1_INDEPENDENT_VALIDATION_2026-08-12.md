@@ -5,14 +5,14 @@
 ## Execution record
 
 - PR: #13 — Controlled O1 Implementation
-- O1 implementation HEAD: `6618e3d305d0819a6eea39e4f559e21d929045b3`
-- PR merge-test commit validated by CI: `879a829284d3d307c4fe469bb36622bc0d6e67af`
+- O1 implementation HEAD: `76c9d1d51bf01e88056092b87fc4204831eac4f8`
+- PR merge-test commit validated by CI: `547166a9c527a13e74ba08f74f69d6a30907f13f`
 - Controlled CI workflow: `ACAA v0.5 — O1 Controlled Implementation`
-- Run: **#27**
-- Workflow run ID: `31578088577`
+- Run: **#43**
+- Workflow run ID: `31578812539`
 - Result: **SUCCESS**
-- Evidence artifact ID: `9134026903`
-- Evidence artifact SHA-256: `c0a905da4c375082f73350b9689fd81a596ad811332eba7d0e01606cb0d66307`
+- Evidence artifact ID: `9134308412`
+- Evidence artifact SHA-256: `51b7b94e066caea1c23e17d8da003b632259c3b0da4548d97e1026473a89ffcb`
 
 ## Independent validation predicates
 
@@ -50,12 +50,14 @@ Pre-run BaseConfig fingerprint
 Raw run artifact
         │
         ▼
-Post-run effective configuration
+Post-run BaseConfig / effective configuration
         │
         └── effective fingerprint independently recomputed
 ```
 
-No v0.4 engine or independent validator semantics were changed to resolve this issue.
+The validation contract now explicitly distinguishes cross-run baseline identity from the post-run effective configuration identity used by the engine's serialized `EffectiveConfig` fingerprint.
+
+No v0.4 engine semantics were changed to resolve this issue.
 
 ## Interpretation boundary
 
@@ -66,7 +68,7 @@ It does not establish universal robustness, population-level robustness, or scie
 ## Scope boundary
 
 - v0.4 engine: unchanged
-- v0.4 independent validator: unchanged
+- v0.4 independent validator: validation-only changes in the O1 branch
 - O2: not implemented
 - R2/R3: excluded
 - v0.5 baseline: not yet established
