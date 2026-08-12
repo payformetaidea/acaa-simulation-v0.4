@@ -1,15 +1,22 @@
 #!/usr/bin/env python3
 """O2 CAU identity evidence producer.
 
-Runs the frozen v0.4 engine unchanged and projects its ledger into a
-machine-checkable identity evidence artifact. No v0.4 engine semantics are
-modified here.
+Loads the frozen v0.4 engine by file path and projects its existing ledger
+into a machine-checkable identity evidence artifact. No v0.4 engine semantics
+are modified here.
 """
 import argparse
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
-from value_flow_simulator_v0_4 import BaseConfig, ValueFlowSim
+
+ENGINE_PATH = Path(__file__).with_name("value_flow_simulator_v0.4.py")
+spec = importlib.util.spec_from_file_location("acaa_engine_v04", ENGINE_PATH)
+engine = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(engine)
+BaseConfig = engine.BaseConfig
+ValueFlowSim = engine.ValueFlowSim
 
 CONTRACT = "acaa.v0.5.o2.identity-contract@1.0"
 
