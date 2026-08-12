@@ -32,7 +32,7 @@ jobs:
 
       - name: O1 Controlled Execution
         run: |
-          python3 o1_robustness_v0.5.py --engine value_flow_simulator_v0.4.py --output-dir o1_evidence
+          python3 o1_robustness_v0_5.py --engine value_flow_simulator_v0.4.py --output-dir o1_evidence
 
       - name: Verify O1 Evidence Structure
         run: |
