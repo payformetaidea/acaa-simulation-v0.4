@@ -24,5 +24,11 @@ jobs:
         run: python o2_identity_v0_5.py --seed 42 --periods 100 --output o2_identity_evidence.json
       - name: Independent O2 evidence validation
         run: python independent_o2_validator_v0_5.py o2_identity_evidence.json
+      - name: Upload O2 evidence package
+        uses: actions/upload-artifact@v4
+        with:
+          name: acaa-v0.5-o2-independent-evidence
+          path: o2_identity_evidence.json
+          if-no-files-found: error
       - name: v0.4 regression
         run: python value_flow_simulator_v0.4.py --regression
