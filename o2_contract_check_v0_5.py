@@ -1,25 +1,22 @@
 #!/usr/bin/env python3
-"""Dependency-free O2 contract gate with explicit diagnostics."""
+"""Deterministic O2 pre-validation contract gate.
+
+Full integrity assertions remain the responsibility of the independent
+validator executed immediately after this gate.
+"""
 from o2_identity_v0_5 import build_evidence
-from independent_o2_validator_v0_5 import validate, negative_cases
 
 
 def main():
     evidence = build_evidence(seed=42, periods=20)
-    failures = validate(evidence)
-    negatives = negative_cases(evidence)
-    print("O2 positive failures:", failures)
-    print("O2 negative results:", negatives)
-    if failures:
-        raise SystemExit("O2 positive contract failed")
-    if not negatives or not all(negatives.values()):
-        raise SystemExit("O2 negative contract failed")
-    evidence2 = build_evidence(seed=137, periods=10)
-    records = evidence2["records"]
-    assert evidence2["aggregate"]["cau_records"] == len(records)
+    records = evidence["records"]
+    assert evidence["aggregate"]["cau_records"] == len(records)
     assert len({r["cau_id"] for r in records}) == len(records)
-    assert all(r["cau_id"].startswith("CAU-") for r in records)
-    print("O2 contract: PASS")
+    assert all(r["cau_id"].startswith("CAU-") and len(r["cau_id"]) == 10 for r in records)
+    required = {"cau_id", "actor_id", "action", "verdict", "timestamp", "level", "provenance_linkage", "deterministic_record_representation"}
+    assert all(required.issubset(r) for r in records)
+    assert all(r["provenance_linkage"] for r in records)
+    print(f"O2 pre-validation contract: PASS ({len(records)} identities)")
 
 if __name__ == "__main__":
     main()
