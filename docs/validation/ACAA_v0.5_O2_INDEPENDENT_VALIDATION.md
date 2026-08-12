@@ -4,11 +4,11 @@
 **PR:** #16  
 **Branch:** `agent/v0.5-controlled-implementation-o2`  
 **Base:** `4b583a52f9c70f6bf31d2b7120787462ecb6dcaf`  
-**Validated HEAD:** `359a40f778446af2f28c0c57a6e358300e446023`
+**Validated HEAD:** `d56bfb487c8aa115eaa4d8f4f6fce4251326cfe0`
 
 ## Validation Result
 
-**Controlled O2 CI: PASS** — Run #17 / `31608724508`
+**Controlled O2 CI: PASS** — Run #19 / `31608798984`
 
 | Gate | Result |
 |---|---|
@@ -19,9 +19,9 @@
 
 ## Evidence Artifact
 
-- Artifact ID: `9146233858`
+- Artifact ID: `9146260721`
 - Name: `acaa-v0.5-o2-independent-evidence`
-- SHA-256: `4f5a571db1f949e02b96317450631394258bd20de321f2abc13aded214d0ebf1`
+- SHA-256: `3c19a144aee448a6c5aad0e0de94566384cb5858c436cda8c53764e8ce3dc36e`
 - Size: 106,770 bytes
 
 ## Root-Cause Learning During Implementation
@@ -38,4 +38,4 @@ This validation establishes identity-level evidence integrity and independent id
 
 ## Governance Boundary
 
-O2 is **validated by independent evidence CI** at this HEAD. This record does not establish the v0.5 baseline and does not authorize merging PR #13 or PR #16. Gatekeeper approval remains a separate governance decision.
+O2 is **validated by independent evidence CI** at the validated HEAD above. This record does not establish the v0.5 baseline and does not authorize merging PR #13 or PR #16. Gatekeeper approval remains a separate governance decision.
