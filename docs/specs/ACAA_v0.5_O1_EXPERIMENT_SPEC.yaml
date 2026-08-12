@@ -1,0 +1,127 @@
+schema: acaa.v0.5.o1.experiment-spec
+version: "1.0"
+status: frozen-preimplementation
+objective: O1
+name: Multi-Seed Behavioral Characterization
+baseline:
+  release_anchor: 239fd30de9e9c22b8f3bab0303250cfa98774696
+  validated_execution_anchor: 50892a3be4bf05b54283514ccc6fd4798703aa35
+  semantics: immutable-v0.4
+protocol:
+  seed_policy:
+    count_min: 12
+    unique: true
+    preregistered: true
+    planned_seed_set_required: true
+    planned_equals_executed: true
+  configuration:
+    base_fingerprint_constant: true
+    scenario_constant: true
+    scenario_params_constant: true
+    effective_fingerprint_reproducible: true
+  engine:
+    hash_constant: true
+  run_artifact:
+    required: true
+    preserved: true
+required_evidence:
+  - seed
+  - base_config_fingerprint
+  - effective_config_fingerprint
+  - scenario
+  - scenario_params
+  - engine_hash
+  - execution_timestamp
+  - final_cau_count
+  - final_gini
+  - gate_efficiency
+  - failure_rate
+  - total_artifacts
+  - detected_agents
+  - isolated_agents
+  - equilibrium_metrics
+  - metric_trajectory
+  - artifact_digest
+statistics:
+  required:
+    - valid_run_count
+    - mean
+    - standard_deviation
+    - variance
+    - coefficient_of_variation
+    - minimum
+    - maximum
+    - predefined_outlier_indicator
+    - per_metric_distribution_summary
+  edge_cases:
+    zero_mean_cv: explicit_declared_rule
+    zero_variance: distinguish_from_missing_data
+validation:
+  positive_predicates:
+    - id: O1-01
+      assertion: planned_seed_set == executed_seed_set
+    - id: O1-02
+      assertion: seed_values_are_unique
+    - id: O1-03
+      assertion: base_configuration_is_constant
+    - id: O1-04
+      assertion: effective_fingerprints_reproduce
+    - id: O1-05
+      assertion: engine_hash_is_consistent
+    - id: O1-06
+      assertion: required_metrics_present_for_all_runs
+    - id: O1-07
+      assertion: aggregate_statistics_reproduce_from_run_artifacts
+    - id: O1-08
+      assertion: statistical_edge_cases_follow_declared_rules
+    - id: O1-09
+      assertion: artifact_digests_validate
+    - id: O1-10
+      assertion: v0.4_regression_suite_passes
+  negative_cases:
+    - id: O1-N01
+      mutation: remove_seed
+      expected: validation_failure
+    - id: O1-N02
+      mutation: duplicate_seed
+      expected: validation_failure
+    - id: O1-N03
+      mutation: add_unexpected_seed
+      expected: validation_failure
+    - id: O1-N04
+      mutation: alter_configuration_fingerprint
+      expected: validation_failure
+    - id: O1-N05
+      mutation: alter_engine_hash
+      expected: validation_failure
+    - id: O1-N06
+      mutation: remove_required_metric
+      expected: validation_failure
+    - id: O1-N07
+      mutation: alter_metric
+      expected: validation_failure
+    - id: O1-N08
+      mutation: replace_numeric_metric_with_malformed_value
+      expected: validation_failure
+    - id: O1-N09
+      mutation: alter_aggregate_statistic
+      expected: validation_failure
+    - id: O1-N10
+      mutation: alter_artifact_digest
+      expected: validation_failure
+interpretation_boundary:
+  establishes:
+    - defined_multiseed_experiment_executed
+    - independent_validation_of_contract
+    - observed_distributional_statistics
+  does_not_establish:
+    - universal_robustness
+    - population_level_robustness
+    - scientific_validity_beyond_scope
+stop_conditions:
+  - v0.4_semantics_change_required
+  - independent_evidence_cannot_be_preserved
+  - validator_independence_compromised
+  - integrity_or_provenance_contract_breaks
+  - acceptance_predicate_not_reproducible
+  - claim_exceeds_approved_objective_scope
