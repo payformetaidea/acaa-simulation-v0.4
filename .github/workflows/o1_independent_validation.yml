@@ -1,0 +1,58 @@
+name: ACAA v0.5 — O1 Independent Evidence Validation
+
+on:
+  push:
+    branches:
+      - agent/v0.5-o1-independent-evidence-validation
+  pull_request:
+    branches:
+      - agent/v0.5-controlled-implementation-o1
+
+permissions:
+  contents: read
+
+jobs:
+  independent-o1-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Independent Validator Contract Tests
+        run: python -m unittest discover -s tests -p 'test_o1_independent_evidence_validator_v0_5.py' -v
+
+      - name: Re-execute O1 Controlled Experiment
+        run: python3 o1_robustness_v0_5.py --engine value_flow_simulator_v0.4.py --output-dir o1_evidence
+
+      - name: Independent Evidence Validation Gate
+        run: python3 o1_independent_evidence_validator_v0_5.py --evidence-dir o1_evidence --engine value_flow_simulator_v0.4.py
+
+      - name: Verify Independent Gate Artifact
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('o1_evidence/o1_independent_validation.json')
+          data = json.loads(p.read_text(encoding='utf-8'))
+          assert data['objective'] == 'O1'
+          assert data['status'] == 'PASS'
+          assert data['protocol']['seed_count'] == 12
+          assert all(v == 'PASS' for v in data['gate'].values())
+          assert len(data['runs']) == 12
+          print('Independent O1 Gate: PASS')
+          PY
+
+      - name: Upload Independent Evidence Package
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: acaa-v0.5-o1-independent-validation-${{ github.run_id }}
+          path: |
+            o1_evidence/
+          if-no-files-found: error
+          retention-days: 30
