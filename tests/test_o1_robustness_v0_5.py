@@ -1,23 +1,16 @@
 #!/usr/bin/env python3
-"""Machine-checkable tests for the frozen O1 contract.
-
-These tests exercise the O1 contract predicates and declared negative cases
-without executing the v0.4 engine. Engine execution is reserved for CI and the
-independent evidence run.
-"""
+"""Machine-checkable tests for the frozen O1 contract."""
 
 from __future__ import annotations
 
 import copy
 import importlib.util
-import json
-import tempfile
 import unittest
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MODULE_PATH = ROOT / "o1_robustness_v0.5.py"
+MODULE_PATH = ROOT / "o1_robustness_v0_5.py"
 SPEC = importlib.util.spec_from_file_location("o1_runner", MODULE_PATH)
 assert SPEC and SPEC.loader
 O1 = importlib.util.module_from_spec(SPEC)
