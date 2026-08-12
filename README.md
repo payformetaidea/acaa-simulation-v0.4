@@ -1,47 +1,69 @@
-# ACAA — Adaptive Cognitive Architecture v0.4
+# ACAA — Adaptive Cognitive Architecture v0.5.0
 
-ACAA v0.4 is a validated simulation and experimental research artifact for the Adaptive Cognitive Architecture project.
+**Research Identity:** `iplusai`  
+**Research & Architecture by:** **Pouria Valaee**
 
-## Validation status
+ACAA — Adaptive Cognitive Architecture is an experimental research architecture investigating evidence-centered knowledge formation, epistemic state, provenance, validation, and controlled evolution in adaptive AI systems.
 
-- **Version:** v0.4
-- **Validation:** Achieved
-- **Gatekeeper Decision:** PASS
-- **Step 8:** Complete
-- **Execution Run:** `31516580718`
-- **Validation Run:** `31516959482`
-- **Validation Job:** `93864388292`
-- **Validated execution commit:** `50892a3be4bf05b54283514ccc6fd4798703aa35`
-- **Evidence:** Independent execution artifacts, SHA-256 manifest, independent validator result, and formal Gatekeeper record.
+## v0.5.0 — Frozen Baseline
 
-The formal decision record is maintained at `docs/validation/ACAA_v0.4_GATEKEEPER_DECISION_2026-08-11.md`.
+ACAA v0.5.0 is the canonical frozen engineering reference point for the current research program.
 
-## Repository structure
+### Canonical Baseline
 
-- `value_flow_simulator_v0.4.py` — simulation engine
-- `independent_validator_v0.4.py` — independent validation logic
-- `.github/workflows/` — automated execution, validation, and regression workflows
-- `docs/validation/` — validation and governance records
+- **Release:** `v0.5.0`
+- **Commit:** `de7d11ed9457ede84c1954aa70a59331bf07b72e`
+- **Final CI Run:** `31612771156` — `SUCCESS`
+- **Evidence Artifact:** `9147965020`
+- **Recorded SHA-256:** `cc3d7700a019f3776ad2c9e776c69121ede0a2f29fc32404a0cc42fd2446f0a7`
 
-## Provenance and attribution
+The frozen baseline provides a stable, identifiable reference state for subsequent research, controlled experimentation, comparison, regression analysis, provenance tracking, and architectural evolution.
 
-**Creator / Author / Gatekeeper**
+## Research Position
 
-- **Full name:** Pouria Valaee
+ACAA investigates an explicit distinction among epistemic states such as:
+
+`Observation → Evidence → Intuition → Knowledge → Thesis → Decision → Validation → Learning`
+
+These concepts represent the research architecture and hypotheses under investigation. The v0.5.0 release establishes the corresponding bounded engineering governance, validation, provenance, evidence reconciliation, and release-freeze mechanisms documented for this baseline.
+
+## Validation Status
+
+The v0.5.0 baseline records the defined validation and governance lifecycle, including controlled implementation, validation gates, integration CI, evidence reconciliation, final CI, artifact provenance, and release freeze.
+
+The project does not claim AGI, universal AI reliability, generalized AI safety, or complete validation of the proposed epistemic architecture across arbitrary AI systems.
+
+## Provenance and Attribution
+
+### Research Identity
+
+**iplusai — Pouria Valaee**
+
+### Creator / Author / Research Architect
+
+**Pouria Valaee**  
+**Research & Architecture:** ACAA — Adaptive Cognitive Architecture  
+**Research Identity:** `iplusai`
+
 - **Email:** pouria@pouriavalaee.ir
 - **LinkedIn:** https://www.linkedin.com/in/pouria-valaee-6746a6208/
 - **Personal website:** https://pouriavalaee.ir
 
-Authorship and project provenance are documented through source metadata, version-controlled history, validation artifacts, and canonical project records. These records document provenance and attribution; they do not constitute formal legal registration of intellectual property rights.
+**© 2026 Pouria Valaee. All rights reserved unless otherwise stated.**
+
+The publication of the research and supporting software artifacts permits examination, discussion, experimentation, and further research while preserving attribution to the original author. Repository history, source metadata, validation records, artifacts, and release records provide project provenance and attribution evidence; they do not constitute formal legal registration of intellectual property rights.
+
+## Research Artifact
+
+- **Repository:** https://github.com/payformetaidea/acaa-simulation-v0.4
+- **Frozen Release:** https://github.com/payformetaidea/acaa-simulation-v0.4/releases/tag/v0.5.0
 
 ## Scope
 
-ACAA v0.4 has passed the validation requirements defined for this version. The validation result does not by itself establish generalizability, production readiness, or scientific validity beyond the defined validation scope.
+ACAA v0.5.0 establishes a bounded engineering baseline for the defined project scope. Research propositions concerning epistemic reliability, evidence quality, thesis management, falsification, reflexivity, organizational memory, and controlled epistemic evolution remain subjects for subsequent investigation.
 
-## Reproducibility
+## Reproducibility and Evolution
 
-The repository preserves the validated source revision and the evidence references needed to inspect the v0.4 validation chain. Claims of reproducibility should be limited to procedures explicitly defined and demonstrated by the project.
+The frozen baseline serves as a canonical reference point for future comparison and controlled evolution. Claims of reproducibility should remain limited to procedures explicitly defined and demonstrated by the project.
 
-## Development
-
-Changes after the validated v0.4 baseline should be developed as controlled revisions and subjected to a new validation cycle when they affect validated behavior, assumptions, or evidence contracts.
+Subsequent changes affecting validated behavior, assumptions, evidence contracts, or governance boundaries should proceed through a new controlled validation cycle.
