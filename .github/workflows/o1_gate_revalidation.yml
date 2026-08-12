@@ -1,0 +1,38 @@
+name: ACAA v0.5 — O1 Gate Revalidation
+
+on:
+  pull_request:
+    branches:
+      - agent/v0.5-controlled-implementation-o1
+
+permissions:
+  contents: read
+
+jobs:
+  o1-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Full Regression CI
+        run: python -m unittest discover -s tests -p 'test*.py' -v
+      - name: Fresh O1 Execution
+        run: python3 o1_robustness_v0_5.py --engine value_flow_simulator_v0.4.py --output-dir o1_evidence
+      - name: Prepare Evidence
+        run: python3 prepare_o1_independent_evidence_v0_5.py --evidence-dir o1_evidence --commit "${GITHUB_SHA}"
+      - name: Independent O1 Validation
+        run: python3 independent_o1_validator_v0_5.py --evidence-dir o1_evidence --regression-status <(printf '{"status":"PASS","commit":"%s"}' "${GITHUB_SHA}") --commit "${GITHUB_SHA}"
+      - name: Verify Gate
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('o1_evidence/independent_validation.json').read_text())
+          assert d['status']=='PASS'
+          assert all(v=='PASS' for v in d['predicates'].values())
+          assert all(v=='PASS' for v in d['negative_cases'].values())
+          assert d['run_count']==12
+          print('O1 Gate Revalidation: PASS')
+          PY
