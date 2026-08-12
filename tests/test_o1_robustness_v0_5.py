@@ -8,7 +8,6 @@ import importlib.util
 import unittest
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 MODULE_PATH = ROOT / "o1_robustness_v0_5.py"
 SPEC = importlib.util.spec_from_file_location("o1_runner", MODULE_PATH)
@@ -101,17 +100,19 @@ class O1ContractTests(unittest.TestCase):
             "adaptive_log": [],
             "provenance_events": 1,
             "engine_hash": "engine",
-            "config_hash": "config",
+            "config_hash": "post-run-config",
             "effective_config": {"seed": 42},
             "execution_timestamp": "2026-08-12T00:00:00+00:00",
             "scenario": "baseline",
             "random_seed": 42,
+            "o1_base_config_fingerprint": "base",
         }
         O1.validate_artifact(artifact, 42)
 
         for mutation in (
             lambda x: x.pop("random_seed"),
             lambda x: x.update(random_seed=137),
+            lambda x: x.pop("o1_base_config_fingerprint"),
             lambda x: x["metrics"][0].pop("gate_efficiency"),
             lambda x: x["metrics"][0].update(gate_efficiency="malformed"),
             lambda x: x.update(scenario="sybil"),
