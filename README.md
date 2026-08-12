@@ -1,5 +1,7 @@
 # ACAA — Adaptive Cognitive Architecture v0.4
 
+![ACAA Visual Identity](assets/acaa-visual-identity.svg)
+
 ACAA v0.4 is a validated simulation and experimental research artifact for the Adaptive Cognitive Architecture project.
 
 ## Validation status
@@ -22,6 +24,18 @@ The formal decision record is maintained at `docs/validation/ACAA_v0.4_GATEKEEPE
 - `independent_validator_v0.4.py` — independent validation logic
 - `.github/workflows/` — automated execution, validation, and regression workflows
 - `docs/validation/` — validation and governance records
+- `docs/ACAA_VISUAL_IDENTITY.md` — canonical visual identity and attribution standard
+- `assets/acaa-visual-identity.svg` — canonical ACAA identity artwork
+
+## Visual identity and attribution
+
+**ACAA — Adaptive Cognitive Architecture**
+
+**Research & Architecture by Pouria Valaee**  
+**© 2026 Pouria Valaee — All Rights Reserved**  
+**iplusai**
+
+The author attribution is part of the canonical visual identity and should remain attached to official ACAA artwork, architecture diagrams, research figures, release graphics, and presentation covers whenever space permits.
 
 ## Provenance and attribution
 
