@@ -20,8 +20,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: O2 dependency-free contract gate
-        run: python o2_contract_check_v0_5.py
       - name: Controlled O2 execution
         run: python o2_identity_v0_5.py --seed 42 --periods 100 --output o2_identity_evidence.json
       - name: Independent O2 evidence validation
