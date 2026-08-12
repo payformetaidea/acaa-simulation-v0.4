@@ -24,8 +24,14 @@ def base_fp(params):
     return hashlib.sha256(json.dumps(canonical,sort_keys=True).encode()).hexdigest()
 
 def effective_fp(run):
-    e=run['effective_config']; post_run_base=base_fp(run['params'])
-    canonical={'base_fingerprint':post_run_base,'seed':e['seed'],'scenario':e['scenario'],'scenario_params':e.get('scenario_params',{})}
+    e=run['effective_config']
+    # The exported `params` object may reflect post-run adaptive governance.
+    # Reproducing the EffectiveConfig fingerprint must therefore use the
+    # immutable pre-run BaseConfig fingerprint captured by the O1 runner.
+    pre_run_base=run['o1_base_config_fingerprint']
+    if not isinstance(pre_run_base,str) or not pre_run_base:
+        raise ValidationError('missing immutable pre-run base configuration fingerprint')
+    canonical={'base_fingerprint':pre_run_base,'seed':e['seed'],'scenario':e['scenario'],'scenario_params':e.get('scenario_params',{})}
     return hashlib.sha256(json.dumps(canonical,sort_keys=True).encode()).hexdigest()
 
 def finite(v,label):
