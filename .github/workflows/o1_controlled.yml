@@ -32,9 +32,14 @@ jobs:
 
       - name: O1 Controlled Execution
         run: |
-          python3 o1_robustness_v0_5.py --engine value_flow_simulator_v0.4.py --output-dir o1_evidence
+          set +e
+          python3 o1_robustness_v0_5.py --engine value_flow_simulator_v0.4.py --output-dir o1_evidence 2>&1 | tee o1_execution.log
+          status=${PIPESTATUS[0]}
+          echo "O1_EXIT_CODE=${status}" | tee -a o1_execution.log
+          exit "${status}"
 
       - name: Verify O1 Evidence Structure
+        if: ${{ success() }}
         run: |
           python3 - <<'PY'
           import json
@@ -52,8 +57,12 @@ jobs:
           PY
 
       - name: Upload O1 Evidence
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: acaa-v0.5-o1-evidence
-          path: o1_evidence/
+          name: acaa-v0.5-o1-evidence-${{ github.run_id }}
+          path: |
+            o1_evidence/
+            o1_execution.log
+          if-no-files-found: warn
           retention-days: 30
