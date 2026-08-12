@@ -1,0 +1,59 @@
+name: ACAA v0.5 — O1 Controlled Implementation
+
+on:
+  push:
+    branches:
+      - agent/v0.5-controlled-implementation-o1
+  pull_request:
+    branches:
+      - agent/v0.5-implementation-design
+      - agent/research-to-objective-gate
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  o1-controlled:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Unit Tests — O1 Contract
+        run: |
+          python -m unittest discover -s tests -p 'test_o1_robustness_v0_5.py' -v
+
+      - name: O1 Controlled Execution
+        run: |
+          python3 o1_robustness_v0.5.py --engine value_flow_simulator_v0.4.py --output-dir o1_evidence
+
+      - name: Verify O1 Evidence Structure
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('o1_evidence/o1_evidence.json')
+          data = json.loads(p.read_text(encoding='utf-8'))
+          assert data['objective'] == 'O1'
+          assert data['protocol']['planned_seed_set'] == data['protocol']['executed_seed_set']
+          assert data['protocol']['seed_count'] == 12
+          assert len(data['configuration']['base_fingerprints']) == 1
+          assert len(data['configuration']['engine_hashes']) == 1
+          assert len(data['runs']) == 12
+          assert all(len(r['artifact_digest']) == 64 for r in data['runs'])
+          print('O1 evidence structure: PASS')
+          PY
+
+      - name: Upload O1 Evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: acaa-v0.5-o1-evidence
+          path: o1_evidence/
+          retention-days: 30
