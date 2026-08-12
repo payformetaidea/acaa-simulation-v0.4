@@ -27,24 +27,33 @@ class IndependentFingerprintTests(unittest.TestCase):
             "o1_base_config_fingerprint": "b" * 64,
         }
 
-    def test_effective_fingerprint_reproduces_from_immutable_prerun_identity(self):
+    def test_effective_fingerprint_reproduces_from_post_run_base_config(self):
         run = self.make_run()
         expected = VALIDATOR.effective_fp(run)
         self.assertEqual(len(expected), 64)
         self.assertEqual(run["effective_config"].get("scenario"), "baseline")
 
-    def test_post_run_configuration_does_not_change_effective_identity(self):
+    def test_post_run_configuration_changes_effective_identity(self):
         run = self.make_run()
         before = VALIDATOR.effective_fp(run)
         run["params"]["noise"] = 999
         run["params"]["periods"] = 9999
-        self.assertEqual(VALIDATOR.effective_fp(run), before)
+        self.assertNotEqual(VALIDATOR.effective_fp(run), before)
 
-    def test_missing_immutable_base_identity_is_rejected(self):
+    def test_missing_post_run_configuration_is_rejected(self):
         run = self.make_run()
-        del run["o1_base_config_fingerprint"]
+        del run["params"]
         with self.assertRaises(VALIDATOR.ValidationError):
             VALIDATOR.effective_fp(run)
+
+    def test_prerun_identity_is_separate_from_effective_identity(self):
+        run = self.make_run()
+        prerun = run["o1_base_config_fingerprint"]
+        self.assertEqual(len(prerun), 64)
+        effective_before = VALIDATOR.effective_fp(run)
+        run["params"]["noise"] = 999
+        self.assertEqual(run["o1_base_config_fingerprint"], prerun)
+        self.assertNotEqual(VALIDATOR.effective_fp(run), effective_before)
 
 
 if __name__ == "__main__":
