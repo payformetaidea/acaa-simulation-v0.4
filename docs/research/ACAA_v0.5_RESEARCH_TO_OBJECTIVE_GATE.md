@@ -9,13 +9,13 @@
 
 ## 1. Purpose
 
-This document defines the decision boundary between the **Knowledge Domain** and the **Design Domain** for the transition from ACAA v0.4 to v0.5.
+This document defines the decision boundary between the v0.4 **Knowledge Domain** and the v0.5 **Design Domain**.
 
-Its purpose is to prevent a Research Opportunity from becoming an implementation objective merely because it is interesting, technically attractive, or easy to implement.
+A Research Opportunity becomes an Objective Candidate only when its evidence lineage, research question, experimental design, measurements, acceptance criteria, and validation relevance are sufficiently specified.
 
-No v0.5 architectural or code change is authorized by this document alone.
+This artifact authorizes **no implementation**.
 
-## 2. Canonical Transition Model
+## 2. Decision Model
 
 ```text
 v0.4 Frozen Validated Baseline
@@ -28,13 +28,7 @@ Knowledge Gap
         ↓
 Research Opportunity
         ↓
-Research Question
-        ↓
-Evidence Specification
-        ↓
-Experimental Design
-        ↓
-Acceptance Criteria
+Research Definition
         ↓
 RESEARCH → OBJECTIVE GATE
         ↓
@@ -54,8 +48,6 @@ RESEARCH → OBJECTIVE GATE
 
 ## 3. Epistemic Boundary
 
-The following states are distinct and must remain traceable:
-
 ```text
 Research Opportunity
         ≠
@@ -68,304 +60,224 @@ Approved Objective
 Implementation Task
 ```
 
-A Research Opportunity can remain a Research Opportunity indefinitely. A valid outcome of the Gate is **DEFER**.
+`ACCEPT` at this Gate means **Objective Candidate**, not approved implementation scope. Final approval remains with `ACAA_v0.5_EVOLUTION_GATE.md`.
 
 ## 4. Gate Entry Requirements
 
-A Research Opportunity may enter formal Gate evaluation only when all of the following are documented:
+A candidate must document:
 
-1. **Source** — exact v0.4 evidence or validator condition that generated the opportunity.
-2. **Established Claim** — what the evidence actually establishes.
-3. **Non-Claim** — what the evidence does not establish.
-4. **Knowledge Gap** — the unresolved boundary in current knowledge.
-5. **Research Question** — a specific question that can be investigated.
-6. **Evidence Specification** — observable evidence required to answer the question.
-7. **Experimental Design** — reproducible design capable of producing that evidence.
-8. **Measurement Plan** — metrics, comparison conditions, and analysis method.
-9. **Acceptance Criteria** — predefined conditions for considering the research result sufficient.
-10. **Scope Impact** — explicit statement of whether the result would require a change to the Engine, Validator, Evidence Contract, or documentation only.
+1. exact v0.4 evidence source;
+2. established claim;
+3. non-claim;
+4. knowledge gap;
+5. testable research question;
+6. required evidence;
+7. reproducible experimental design;
+8. measurement plan;
+9. predefined acceptance criteria;
+10. expected Engine / Validator / Evidence Contract / documentation impact;
+11. independent validation path;
+12. preservation requirements for the v0.4 integrity chain.
 
-If any required element is missing, the Gate result is **REFINE**.
+Missing material requirements result in `REFINE`.
 
-## 5. Objective Sufficiency Test
+## 5. Repository Evidence Used for the Decision
 
-A Research Opportunity can become an **Objective Candidate** only when the proposed work has all of the following properties:
+The analysis was performed against the frozen v0.4 Engine, independent validator, Gatekeeper record, and preserved independent execution artifact.
 
-- Evidence lineage is explicit.
-- The research question is testable.
-- The experimental design is reproducible.
-- Measurements are defined before interpretation.
-- Acceptance criteria are defined before implementation.
-- The expected result has architectural or validation relevance.
-- The resulting change can be validated independently.
-- The change can be incorporated into a new traceable baseline.
+The independent execution artifact is from run `31516580718`, with digest:
 
-More events, more seeds, more identifiers, or more test cases by themselves do not satisfy this test.
+`sha256:6d8916c386b569a930f436a85065955123bb669e34c1e9d83ada16a65bbd99bb`
 
-## 6. Gate Decisions
+The validator is explicitly independent of Engine execution: it validates the artifact set without importing or executing the Engine.
 
-### ACCEPT
+The v0.4 validator checks artifact presence, manifest integrity, schema, sensitivity structure, multi-seed record presence, regression summary, equilibrium, attack-response event existence, provenance count equality, an architecture-level CAU criterion, and adaptive-event existence.
 
-Use **ACCEPT** when the research question, evidence requirements, experimental design, and acceptance criteria are sufficiently specified and the work has a justified role in the v0.5 Evolution Gate.
+## 6. R1 — Robustness Characterization
 
-Output:
+### v0.4 evidence
 
-```text
-Research Opportunity → Objective Candidate
-```
+V7 contains three baseline seed executions: `42`, `137`, and `256`. The Engine also contains multi-seed execution and configured candidate CV thresholds (`cv_cau_threshold=0.05`, `cv_gini_threshold=0.01`). The validator only verifies that the three required seed records are present.
 
-### REFINE
+The preserved artifact shows the following final outcomes:
 
-Use **REFINE** when the research opportunity is material but the current evidence or experimental specification is insufficient for objective status.
+| Metric | Seed 42 | Seed 137 | Seed 256 |
+|---|---:|---:|---:|
+| CAU records | 1936 | 2466 | 1685 |
+| Gini | 0.0 | 0.0 | 0.0 |
+| Gate efficiency | 0.142420 | 0.299367 | 0.125586 |
+| Failure rate | 0.291667 | 0.327059 | 0.380000 |
+| Total artifacts | 1200 | 1700 | 1000 |
+| Detected agents | 87 | 82 | 88 |
 
-Output:
+The observed CV of final CAU count across these three seeds is approximately `0.16045`. This establishes measurable seed-dependent variation. It does not establish a scientifically validated robustness threshold.
 
-```text
-Research Opportunity → Additional Research Definition
-```
+### Decision
 
-### DEFER
+**ACCEPT → Objective Candidate**
 
-Use **DEFER** when the opportunity is valid but does not currently justify v0.5 scope, or when its expected value is below the current evidence and governance threshold.
+### Objective Candidate
 
-Output:
+**Formalize and independently validate multi-seed behavioral characterization without equating seed coverage with robustness.**
 
-```text
-Research Opportunity → Research Backlog
-```
+### Experimental design
 
-## 7. Current v0.4-Derived Research Opportunities
+- Freeze the v0.4 configuration and scenario.
+- Use a preregistered seed set larger than the existing three-seed smoke check; initial target: at least 12 independent seeds.
+- Verify identical configuration fingerprints across runs.
+- Record final and trajectory-level CAU count, failure rate, gate efficiency, total artifacts, detection/isolation counts, equilibrium, variance, and outliers.
+- Report mean, standard deviation, CV where mathematically meaningful, and run-level distributions.
+- Preserve every run as a reproducible evidence package.
+- Treat the existing Engine CV thresholds as hypotheses requiring justification, not as established scientific truth.
 
-The v0.4 independent validator establishes a bounded validation layer. Its checks include equilibrium, attack-response event existence, structural sensitivity coverage, provenance count consistency, an architecture-level CAU criterion, adaptive-event existence, and presence of three required seeds. The validator explicitly documents that CAU identity-level uniqueness is not verified because the v0.4 export exposes CAU counts rather than individual CAU IDs.
+### Acceptance criteria
 
-The four current Research Opportunities are therefore:
+The objective succeeds when an independent validator can verify seed coverage, configuration identity, reproducible metric extraction, distributional statistics, explicit zero-mean/zero-variance handling, and a bounded conclusion distinguishing observed variability from a robustness claim.
 
-| ID | Research Opportunity | v0.4 Source | Current Status |
+A finding of high variability is a valid outcome. The objective is characterization, not forced confirmation of robustness.
+
+## 7. R2 — Adaptive Behavior Characterization
+
+### v0.4 evidence
+
+V6 verifies adaptive-event existence. The Gatekeeper reports 91 adaptive events. The Engine records trigger metrics and adjustments, including `avg_failure`, `avg_efficiency`, `gini`, and parameter changes such as `alpha_threshold`.
+
+### Non-claim
+
+Event occurrence does not establish that adaptation caused improvement, degradation, recovery, or any other behavioral effect.
+
+### Decision
+
+**REFINE**
+
+### Required refinement
+
+Define a matched ablation design with adaptation enabled versus disabled under the same seed, scenario, and configuration conditions. Define the causal estimand before execution and specify which behavioral metrics constitute an effect.
+
+R2 remains a Research Opportunity until the counterfactual/ablation contract and acceptance criteria are fixed.
+
+## 8. R3 — Adversarial Effectiveness
+
+### v0.4 evidence
+
+V2 reports 2,589 attack-response events under the validator's event-counting rule. The Engine contains explicit attack injection functions and an observable-only detection layer. Attack events already record fields such as period, type, action, score, threshold, and observable features.
+
+### Non-claim
+
+Event existence does not establish detection recall, false-negative rate, detection latency, response latency, recovery time, false-positive behavior, or systemic impact.
+
+### Decision
+
+**REFINE**
+
+### Required refinement
+
+Define an attack-instance ground-truth contract linking every controlled injected attack to its detection and response outcome. At minimum: attack ID, type, injection time, target, detection time, response time, final state, and TP/FP/FN/TN classification where applicable.
+
+Acceptance thresholds must be attack-class-specific and predefined. Event volume alone cannot become the effectiveness criterion.
+
+## 9. R4 — CAU Identity-Level Verification
+
+### v0.4 evidence
+
+The Engine already creates individual CAU identifiers in `CAURecord` using a sequence such as `CAU-000001`, and the collusion detector operates on individual CAU IDs. The export contract, however, exposes only `cau_records: len(self.ledger)` rather than the individual records or IDs. The independent validator therefore cannot verify identity-level uniqueness from the preserved export.
+
+This is an evidence-boundary gap: identity exists internally and is used by Engine logic, while the exported evidence collapses identity to an aggregate count.
+
+### Decision
+
+**ACCEPT → Objective Candidate**
+
+### Objective Candidate
+
+**Expose and independently validate CAU identity-level evidence while preserving the v0.4 provenance and integrity contract.**
+
+### Experimental / validation design
+
+1. Define the CAU identity contract: format, uniqueness scope, lifecycle, and reuse semantics.
+2. Export individual CAU records or a cryptographically bound identity index sufficient for independent verification.
+3. Validate identifier format and uniqueness.
+4. Validate identity count against `cau_records`.
+5. Validate lifecycle, actor/action/timestamp linkage, and provenance linkage.
+6. Test unintended duplication or collision.
+7. Preserve SHA-256 manifest integrity and existing provenance invariants.
+8. Keep the validator independent from Engine execution.
+
+### Acceptance criteria
+
+An independent validator must be able to demonstrate from the preserved artifact alone that every exported CAU identity is unique within the declared scope, traceable to its relevant metadata and provenance chain, and consistent with the aggregate CAU count.
+
+Adding IDs without independent verification is insufficient.
+
+## 10. Cross-Track Decision Matrix
+
+| Track | Decision | Evidence basis | v0.5 role |
 |---|---|---|---|
-| R1 | Robustness Characterization | V7 + V1 | Research Opportunity |
-| R2 | Adaptive Behavior Characterization | V6 | Research Opportunity |
-| R3 | Adversarial Effectiveness | V2 | Research Opportunity |
-| R4 | CAU Identity-Level Verification | V5 validator limitation | Research Opportunity |
+| R1 Robustness | **ACCEPT** | Existing multi-seed execution already exposes measurable variability; missing layer is formal characterization and independent validation. | Objective Candidate |
+| R2 Adaptive | **REFINE** | Temporal adaptive evidence exists; causal attribution remains unspecified. | Research Track |
+| R3 Adversarial | **REFINE** | Attack injection and detection evidence exist; formal attack-instance outcome linkage is missing. | Research Track |
+| R4 CAU Identity | **ACCEPT** | Individual IDs exist internally but are lost at the export/evidence boundary. | Objective Candidate |
 
-**No R1–R4 item is approved as a v0.5 Objective by this artifact.**
+## 11. Preserve Requirements
 
-## 8. R1 — Robustness Characterization
-
-### Established
-
-V7 verifies the presence of the required seed records `42`, `137`, and `256`. V1 verifies the baseline equilibrium threshold for the baseline artifact.
-
-### Non-Claim
-
-These checks do not establish statistical robustness across a broader seed distribution or stability of behavior under varied conditions.
-
-### Research Question
-
-How stable are relevant system behaviors across a predefined broader seed distribution and controlled operating conditions?
-
-### Required Evidence
-
-- predefined seed set and sampling procedure;
-- repeated controlled executions;
-- behavioral metrics selected before execution;
-- distributional summaries;
-- variance and outlier analysis;
-- reproducible artifact package;
-- comparison against predefined stability criteria.
-
-### Objective Sufficiency Condition
-
-R1 can become an Objective Candidate only after the robustness experiment is specified sufficiently to distinguish simple seed coverage from an actual robustness claim.
-
-### Current Gate Decision
-
-**REFINE** — the research direction is material, while the current v0.4 evidence does not yet specify a sufficient robustness experiment or acceptance threshold.
-
-## 9. R2 — Adaptive Behavior Characterization
-
-### Established
-
-V6 verifies the existence of adaptive events. The v0.4 Gatekeeper record reports 91 adaptive events.
-
-### Non-Claim
-
-Event occurrence does not establish that adaptation caused measurable improvement, degradation, or any particular behavioral effect.
-
-### Research Question
-
-What measurable behavioral change, if any, is attributable to adaptation under controlled conditions?
-
-### Required Evidence
-
-- pre-adaptation state;
-- identified adaptation event;
-- post-adaptation state;
-- predefined behavioral metrics;
-- controlled comparison or ablation condition;
-- repeated observations where required;
-- attribution method appropriate to the experimental design.
-
-### Objective Sufficiency Condition
-
-R2 can become an Objective Candidate only when the design can distinguish adaptation occurrence from adaptation effect.
-
-### Current Gate Decision
-
-**REFINE** — causal or attributional design and acceptance criteria remain to be specified.
-
-## 10. R3 — Adversarial Effectiveness
-
-### Established
-
-V2 verifies that attack-response events exist. The v0.4 Gatekeeper record reports 2,589 attack-response events.
-
-### Non-Claim
-
-Event existence does not establish detection quality, latency, response effectiveness, recovery, false-positive/false-negative behavior, or systemic impact.
-
-### Research Question
-
-How effective is the system's adversarial detection and response under predefined attack conditions?
-
-### Required Evidence
-
-- attack taxonomy and controlled test conditions;
-- detection rate;
-- detection latency;
-- response rate and response latency;
-- false-positive and false-negative measurements where applicable;
-- recovery time and post-response state;
-- predefined systemic-impact metrics;
-- reproducible evidence package.
-
-### Objective Sufficiency Condition
-
-R3 can become an Objective Candidate only when effectiveness is operationalized through measurable criteria rather than event counts alone.
-
-### Current Gate Decision
-
-**REFINE** — effectiveness metrics, experimental controls, and acceptance thresholds require formal specification.
-
-## 11. R4 — CAU Identity-Level Verification
-
-### Established
-
-The v0.4 validator performs an architecture-level CAU criterion. The validator source explicitly states that the v0.4 export exposes the CAU count rather than individual CAU IDs.
-
-### Non-Claim
-
-The v0.4 PASS does not establish individual CAU identity uniqueness.
-
-### Research Question
-
-Can individual CAU identity and uniqueness be represented and independently validated across the relevant lifecycle?
-
-### Required Evidence
-
-- explicit CAU identity contract;
-- individual CAU identifiers;
-- uniqueness invariant;
-- lifecycle traceability;
-- provenance linkage;
-- tests for unintended duplication or identity collision;
-- independent validation of the resulting invariant.
-
-### Objective Sufficiency Condition
-
-R4 can become an Objective Candidate only if the identity requirement is demonstrated to be architecturally meaningful and its validation contract is defined before implementation.
-
-Adding IDs alone is insufficient.
-
-### Current Gate Decision
-
-**REFINE** — the v0.4 limitation is explicit, but the architectural requirement and validation contract require further definition.
-
-## 12. Preserve Requirements
-
-The following v0.4 capabilities are preservation constraints for future evolution:
+Any v0.5 candidate must preserve:
 
 - artifact contract and required artifact coverage;
 - SHA-256 / manifest integrity;
 - provenance integrity;
-- existing regression protection;
 - independent validation architecture;
+- existing regression protection;
 - bounded Gatekeeper interpretation;
 - release and baseline traceability.
 
-Any approved v0.5 Objective must state how these preservation constraints remain intact.
+## 12. Out-of-Scope Boundary
 
-## 13. Explicit Out-of-Scope Boundary
-
-The following remain outside the Research → Objective Gate unless separately justified by new evidence and governance:
+The following remain outside this Gate unless separately justified by new evidence and governance:
 
 - production deployment;
 - broad generalizability claims;
 - large-scale real-world deployment;
-- scientific validity claims extending beyond the defined validation scope;
+- scientific validity claims beyond the defined validation scope;
 - feature expansion without an evidence trail;
-- changes to the frozen v0.4 baseline.
+- modification of the frozen v0.4 baseline.
 
-## 14. No-Code Rule
-
-This Gate is a governance and analytical artifact.
-
-It authorizes **no implementation**.
-
-The following remain unchanged:
+## 13. No-Code Rule
 
 ```text
 v0.4 source code          FROZEN
 v0.4 evidence             PRESERVED
 v0.5 implementation       NOT STARTED
-v0.5 objective            NOT YET APPROVED
+v0.5 approved objective   NONE
+Objective candidates      R1, R4
 ```
 
-## 15. Relationship to the v0.5 Evolution Gate
+R1 and R4 are **Objective Candidates only**. They are not approved v0.5 implementation scope.
 
-This document precedes `ACAA_v0.5_EVOLUTION_GATE.md`.
+## 14. Relationship to v0.5 Evolution Gate
 
-The sequence is:
+Only Objective Candidates that pass this boundary may be evaluated by `ACAA_v0.5_EVOLUTION_GATE.md`.
 
 ```text
-Research Opportunity
-        ↓
-Research → Objective Gate
-        ↓
-Objective Candidate(s)
-        ↓
-v0.5 Evolution Gate
-        ↓
-Approved v0.5 Scope
-        ↓
-Implementation
+R1 ACCEPT ─┐
+           ├──→ v0.5 Evolution Gate → Approved Scope → Implementation
+R4 ACCEPT ─┘
+
+R2 REFINE ─→ Research Track
+R3 REFINE ─→ Research Track
 ```
 
-The Evolution Gate must use only Objective Candidates that have passed this boundary. A Research Opportunity that remains in **REFINE** or **DEFER** status must not be silently promoted into implementation scope.
+## 15. Decision Record — 2026-08-12
 
-## 16. Current Governance State
+**Decision boundary:** ACTIVE  
+**R1:** ACCEPT → Objective Candidate  
+**R2:** REFINE  
+**R3:** REFINE  
+**R4:** ACCEPT → Objective Candidate  
+**Approved v0.5 Objectives:** NONE  
+**Code changes authorized by this Gate:** NONE  
+**Next governance artifact:** `ACAA_v0.5_EVOLUTION_GATE.md`
 
-```text
-v0.4 Frozen Validated Baseline          COMPLETE
-Evidence Inventory                      COMPLETE
-V1–V7 Interpretation                    COMPLETE
-Research Opportunities                  4 IDENTIFIED
-Research → Objective Gate               ACTIVE
-R1 Robustness                           REFINE
-R2 Adaptive Behavior                    REFINE
-R3 Adversarial Effectiveness            REFINE
-R4 CAU Identity                         REFINE
-v0.5 Objective                         NONE APPROVED
-v0.5 Evolution Gate                    PENDING
-v0.5 Implementation                    NOT STARTED
-```
-
-## 17. Decision Record
-
-**Decision:** Research → Objective Gate established as an active decision boundary.  
-**Current outcome:** All four v0.4-derived Research Opportunities remain in **REFINE** status.  
-**Objective approval:** None.  
-**Code changes authorized:** None.  
-**Next evidence work:** refine the experimental definitions and acceptance criteria for R1–R4 before any Objective Candidate is proposed.
+This decision supersedes the earlier provisional `4 × REFINE` state in this document and is based on the deeper inspection of the actual v0.4 Engine and preserved execution artifact.
 
 ---
 
