@@ -1,0 +1,3 @@
+# Scientific validation dependency for the G0 deterministic simulation gate.
+# Draft-07 validation is exercised by execution/test_determinism.py.
+jsonschema>=4.23,<5
