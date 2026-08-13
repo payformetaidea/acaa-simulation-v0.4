@@ -1,17 +1,27 @@
 {
-  "status": "PARAMETER_REQUIRED",
+  "status": "SAMPLE_SIZE_FROZEN",
   "target_ratio": 1.25,
   "alpha": 0.05,
   "power": 0.8,
   "dispersion_parameter": "CV",
+  "selected_cv": 0.60,
+  "selected_n_per_group": 97,
+  "total_groups": 7,
+  "total_records_planned": 679,
+  "planning_basis": "CONSERVATIVE_PRESPECIFIED_UPPER_BOUND",
+  "empirical_cv_estimate": false,
+  "scientific_generation_authorized": false,
   "sensitivity_n_per_group": {
     "0.30": 28,
     "0.40": 47,
     "0.50": 71,
     "0.60": 97
   },
-  "selected_cv": null,
-  "selected_n_per_group": null,
-  "scientific_generation_authorized": false,
-  "note": "Sensitivity only. A variance/dispersion assumption must be independently justified and registered before confirmatory scientific dataset generation."
+  "formula": "n = ceil(2 * ((z_(1-alpha/2) + z_power) / (log(1.25)/sqrt(log(1+CV^2))))^2)",
+  "rationale": "CV=0.60 is frozen as a deliberately conservative planning bound selected before scientific data generation. It is not an estimate derived from the Level-A synthetic harness and must not be interpreted as an empirical population parameter.",
+  "literature_basis": [
+    "Van Belle & Martin (1993), The American Statistician, Sample Size as a Function of Coefficient of Variation and Ratio of Means.",
+    "Wolfe & Carlin (1999), Controlled Clinical Trials, Sample-size calculation for a log-transformed outcome measure."
+  ],
+  "next_gate": "SCIENTIFIC_SAMPLING_FRAME_AND_DATASET_LOCK"
 }
