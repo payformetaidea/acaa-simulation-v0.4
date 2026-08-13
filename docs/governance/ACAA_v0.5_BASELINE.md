@@ -4,7 +4,8 @@
 **Date:** 2026-08-12
 **Baseline branch:** `agent/v0.5-integration-ci-gate`
 **Validated finalization predecessor:** `de7d11ed9457ede84c1954aa70a59331bf07b72e`
-**Final CI predecessor:** Run #58 / `31612771156` — PASS
+**Final CI:** Run #58 / `31612771156` — PASS
+**Release tag:** `v0.5.0` → `de7d11ed9457ede84c1954aa70a59331bf07b72e`
 
 ## Formation Basis
 
@@ -14,25 +15,26 @@ The v0.5 baseline consists of the approved O1 and O2 controlled implementations 
 - O2: APPROVED / VALIDATED
 - Evolution Gate: APPROVED FOR INTEGRATION
 - Combined Integration CI: PASS — Run #56 / `31612056935`
-- Evidence Reconciliation: COMPLETE
-- Final CI predecessor: PASS — Run #58 / `31612771156`
+- Evidence Reconciliation: COMPLETE — Frozen Baseline
+- Final CI: PASS — Run #58 / `31612771156`
 - v0.4 Frozen Baseline: PRESERVED
 
 ## Integrated Baseline
 
 - O1 merge: `50a9999f...` (recorded integration state)
 - O2 merge: `889efee0...` (recorded integration state)
-- Baseline candidate commit: `de7d11ed9457ede84c1954aa70a59331bf07b72e`
+- Validated baseline commit: `de7d11ed9457ede84c1954aa70a59331bf07b72e`
+- Release tag: `v0.5.0` → `de7d11ed9457ede84c1954aa70a59331bf07b72e`
 
 ## Finalization
 
-The candidate passed Final CI on the exact candidate commit. This governance document records the transition to **FROZEN**. The finalization commit itself is documentation-only and does not alter O1/O2 implementation semantics.
+The candidate passed Final CI on the exact candidate commit. This governance document records the transition to **FROZEN**. The finalization change is documentation-only and does not alter O1/O2 implementation semantics.
 
-Required release action:
+The release target and tag are preserved as follows:
 
-1. Preserve the validated candidate commit as the immutable release target.
-2. Create tag `v0.5.0` pointing to `de7d11ed9457ede84c1954aa70a59331bf07b72e`.
-3. Keep v0.4 provenance and implementation unchanged.
+1. The validated candidate commit remains the immutable v0.5 release target.
+2. Tag `v0.5.0` points to `de7d11ed9457ede84c1954aa70a59331bf07b72e`.
+3. v0.4 provenance and implementation remain unchanged.
 
 ## Scope Boundary
 
