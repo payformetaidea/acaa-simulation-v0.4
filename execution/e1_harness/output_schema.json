@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ACAA v0.6 E1 Evidence Record",
+  "type": "object",
+  "required": ["protocol", "control_target", "seed", "status", "outputs", "provenance"],
+  "properties": {
+    "protocol": {"const": "ACAA-v0.6-E1"},
+    "control_target": {
+      "type": "object",
+      "required": ["tag", "commit"],
+      "properties": {
+        "tag": {"const": "v0.5.0"},
+        "commit": {"const": "de7d11ed9457ede84c1954aa70a59331bf07b72e"}
+      }
+    },
+    "seed": {"type": "integer"},
+    "status": {"enum": ["PASS", "FAIL", "ERROR"]},
+    "outputs": {"type": "object"},
+    "provenance": {
+      "type": "object",
+      "required": ["runner", "input_sha256", "artifact_sha256"]
+    }
+  }
+}
