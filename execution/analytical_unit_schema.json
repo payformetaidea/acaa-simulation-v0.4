@@ -1,1 +1,64 @@
-{"schema_version":"1.0","analytical_unit":"independent_user_or_agent","nested_interaction_records":true,"record_uuid":"UUID5","unit_id":"string","group":"G1-G7","window_id":"string","timestamp":"RFC3339","credit":"number","ground_truth_label":"Consumer|Producer","contribution_score":"1-10","provenance":"object","inferential_n":"independent_units_only","interaction_records_are_nested":true}
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/payformetaidea/acaa-simulation-v0.4/schema/analytical-unit-1.0.json",
+  "title": "H-AICR G0 Analytical Unit",
+  "description": "Executable schema for one independent theoretical user/agent unit with nested interaction records.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "unit_uuid",
+    "unit_id",
+    "group",
+    "window_start",
+    "window_end",
+    "interaction_records",
+    "ground_truth_label",
+    "contribution_score",
+    "credit",
+    "provenance"
+  ],
+  "properties": {
+    "unit_uuid": {"type": "string", "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-5[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"},
+    "unit_id": {"type": "string", "minLength": 1},
+    "group": {"type": "string", "enum": ["G1_Pure_Consumer", "G2_Low_Producer", "G3_High_Producer", "G4_Iterative_Researcher", "G5_Adversarial_Spam", "G6_Synthetic_AI", "G7_Human_Expert"]},
+    "window_start": {"type": "string", "format": "date-time"},
+    "window_end": {"type": "string", "format": "date-time"},
+    "interaction_records": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/definitions/interaction"}
+    },
+    "ground_truth_label": {"type": "string", "enum": ["Consumer", "Producer"]},
+    "contribution_score": {"type": "number", "minimum": 0, "maximum": 10},
+    "credit": {"type": "number", "minimum": 0, "maximum": 10},
+    "provenance": {"$ref": "#/definitions/provenance"}
+  },
+  "definitions": {
+    "interaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["record_uuid", "window_id", "timestamp", "credit", "contribution_score", "ground_truth_label", "input_text", "provenance"],
+      "properties": {
+        "record_uuid": {"type": "string", "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-5[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"},
+        "window_id": {"type": "string", "minLength": 1},
+        "timestamp": {"type": "string", "format": "date-time"},
+        "credit": {"type": "number", "minimum": 0, "maximum": 10},
+        "contribution_score": {"type": "number", "minimum": 0, "maximum": 10},
+        "ground_truth_label": {"type": "string", "enum": ["Consumer", "Producer"]},
+        "input_text": {"type": "string", "minLength": 1},
+        "provenance": {"$ref": "#/definitions/provenance"}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence_classification", "generator_id", "seed", "model_revision"],
+      "properties": {
+        "evidence_classification": {"const": "IN_SILICO_THEORETICAL_EVIDENCE"},
+        "generator_id": {"const": "ACAA-H-AICR-ABM-G0"},
+        "seed": {"type": "integer", "const": 42},
+        "model_revision": {"type": "string", "const": "deterministic_abm_v1"}
+      }
+    }
+  }
+}
