@@ -1,12 +1,20 @@
 {
   "status": "SAMPLE_SIZE_FROZEN",
+  "target_metric": "H-AICR-007_IC_Ratio",
   "target_ratio": 1.25,
+  "effect_size_threshold": 1.25,
   "alpha": 0.05,
-  "power": 0.8,
+  "power": 0.80,
+  "dispersion_assumption": {
+    "type": "conservative_design_assumption",
+    "value": 0.60,
+    "justification": "The Level A synthetic harness lacks realistic credit outcome variables. Therefore, CV=0.60 is registered strictly as a conservative design parameter to ensure adequate statistical power against high-variance human behavioral data. It is NOT an empirical estimate of the target population's variance."
+  },
   "dispersion_parameter": "CV",
   "selected_cv": 0.60,
   "selected_n_per_group": 97,
   "total_groups": 7,
+  "total_sample_size": 679,
   "total_records_planned": 679,
   "planning_basis": "CONSERVATIVE_PRESPECIFIED_UPPER_BOUND",
   "empirical_cv_estimate": false,
