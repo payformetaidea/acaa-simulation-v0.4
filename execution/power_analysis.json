@@ -1,0 +1,17 @@
+{
+  "status": "PARAMETER_REQUIRED",
+  "target_ratio": 1.25,
+  "alpha": 0.05,
+  "power": 0.8,
+  "dispersion_parameter": "CV",
+  "sensitivity_n_per_group": {
+    "0.30": 28,
+    "0.40": 47,
+    "0.50": 71,
+    "0.60": 97
+  },
+  "selected_cv": null,
+  "selected_n_per_group": null,
+  "scientific_generation_authorized": false,
+  "note": "Sensitivity only. A variance/dispersion assumption must be independently justified and registered before confirmatory scientific dataset generation."
+}
