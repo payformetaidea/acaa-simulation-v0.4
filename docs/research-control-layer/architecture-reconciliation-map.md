@@ -25,6 +25,6 @@ This pattern is reported as a demonstrated, bounded v0.5 research-control archit
 
 ## Ground-truth boundary
 
-The repository baseline artifact currently states `BASELINE CANDIDATE — FINAL CI REQUIRED`, while the public README describes the release as frozen. This package deliberately records that discrepancy rather than silently resolving it.
+The v0.5 governance chain is now reconciled: the validated candidate commit passed Final CI, `v0.5.0` resolves to that immutable release target, and the governance state was subsequently recorded as `FROZEN` by merge commit `94dbfe6da3c62a366c9423a6c785e4b1a74ce340`.
 
-The tag `v0.5.0` resolves to `de7d11ed9457ede84c1954aa70a59331bf07b72e`. The existence of the tag does not, by itself, establish completion of every governance transition declared by the baseline artifact.
+The tag remains unchanged. The later governance merge does not retroactively change the tag target; it records the governance transition around the already validated release target.
