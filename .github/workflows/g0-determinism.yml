@@ -1,0 +1,34 @@
+name: G0 Determinism Gate
+
+on:
+  push:
+    branches:
+      - execution-engineering/h-aicr-g0-v2
+  pull_request:
+    branches:
+      - execution-engineering/h-aicr-g0-v2
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  determinism:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install validation dependency
+        run: python -m pip install --disable-pip-version-check jsonschema
+
+      - name: Run deterministic generator test
+        run: python execution/test_determinism.py
