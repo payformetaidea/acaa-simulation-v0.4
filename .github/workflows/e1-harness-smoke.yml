@@ -1,0 +1,20 @@
+name: E1 Harness Smoke Test
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'execution/e1_harness/**'
+      - '.github/workflows/e1-harness-smoke.yml'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify frozen target reference
+        run: |
+          test -f execution/e1_harness/e1_config.yaml
+          grep -q 'commit: de7d11ed9457ede84c1954aa70a59331bf07b72e' execution/e1_harness/e1_config.yaml
+      - name: Run harness smoke test
+        run: python execution/e1_harness/test_e1_harness.py
