@@ -1,14 +1,34 @@
 {
-  "version": "v0.1",
-  "status": "PROTOCOL_LOCK_CANDIDATE",
+  "version": "v0.2",
+  "status": "SAMPLING_FRAME_REVIEW_CANDIDATE",
   "scientific_generation_authorized": false,
-  "planned_records_per_cohort": 97,
+  "planned_independent_units_per_cohort": 97,
   "cohorts": 7,
-  "planned_total_records": 679,
-  "primary_unit": "interaction_record",
+  "planned_total_independent_units": 679,
+  "primary_analytical_unit": "user_or_agent_identity_over_registered_study_window",
+  "secondary_observational_unit": "interaction_record",
+  "nested_records_allowed": true,
+  "record_count_must_not_substitute_for_independent_unit_count": true,
+  "cohort_assignment_outcome_blind": true,
+  "cohort_rules": {
+    "G1_Pure_Consumer": "information consumption without substantive original contribution under frozen codebook",
+    "G2_Low_Producer": "limited original contribution under frozen codebook",
+    "G3_High_Producer": "substantive original contribution or synthesis under frozen codebook",
+    "G4_Iterative_Researcher": "preregistered iterative research trajectory with temporal refinement",
+    "G5_Adversarial_Spam": "preregistered adversarial/spam behavior; outcome-blind assignment",
+    "G6_Synthetic_AI": "declared synthetic/AI agent with fixed versioned generation protocol",
+    "G7_Human_Expert": "human satisfying preregistered expert qualification independently of outcomes"
+  },
+  "independence_constraints": [
+    "one analytical unit belongs to exactly one cohort",
+    "one stable privacy-preserving unit_id per analytical unit",
+    "unit_id disjoint across Train/Validation/Test",
+    "nested records are clustered and not treated as independent units"
+  ],
   "required_properties": [
+    "stable_deterministic_unit_id",
     "stable_record_uuid",
-    "privacy_preserving_user_or_agent_id",
+    "privacy_preserving_identity",
     "timestamp_utc",
     "source_provenance",
     "frozen_cohort_assignment",
@@ -16,12 +36,11 @@
   ],
   "split_constraints": [
     "record_disjoint",
-    "user_disjoint_when_identity_available",
+    "user_or_agent_disjoint",
     "temporal_disjoint_for_temporal_validation",
     "outcome_blind_split_assignment"
   ],
   "prohibited_generation_source": "execution/generate_controlled_dataset.py",
-  "provenance_required_before_annotation": true,
-  "exclusion_requires_prespecified_reason_code": true,
-  "next_gate": "DATA_ACQUISITION_AND_PROVENANCE_AUDIT"
+  "exclusion_reason_codes_required": true,
+  "next_gate": "ANALYTICAL_UNIT_AND_CODEBOOK_REVIEW"
 }
