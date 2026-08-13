@@ -1,0 +1,1 @@
+{"schema_version":"1.0","write_once_required":true,"raw_outputs":"scientific_dataset_raw and splits.json","overwrite_test":"required","delete_test":"required","failure_code":"IMMUTABILITY_VIOLATION","hash_algorithm":"SHA-256","source_registration_required":true,"status":"PROTOCOL_DEFINED_NOT_VERIFIED"}
