@@ -1,0 +1,111 @@
+name: ACAA v0.6 — H-001 Independent Replication
+
+on:
+  push:
+    branches:
+      - research/v0.6-h001-independent-execution
+
+permissions:
+  contents: read
+
+jobs:
+  h001-replication:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout harness branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Reconstruct exact frozen target
+        shell: bash
+        run: |
+          set -euo pipefail
+          git checkout de7d11ed9457ede84c1954aa70a59331bf07b72e
+          test "$(git rev-parse HEAD)" = "de7d11ed9457ede84c1954aa70a59331bf07b72e"
+          test "$(git describe --tags --exact-match)" = "v0.5.0"
+
+      - name: Record environment and integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p replication-run
+          {
+            echo '# Environment Record'
+            echo
+            echo "UTC: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "Repository: https://github.com/payformetaidea/acaa-simulation-v0.4"
+            echo "HEAD: $(git rev-parse HEAD)"
+            echo "Tag: $(git describe --tags --exact-match)"
+            echo "Runner OS: $(uname -a)"
+            echo "Python: $(python3 --version)"
+            echo "Git: $(git --version)"
+            echo 'Dependencies: standard library only; no third-party package declared'
+          } > replication-run/environment-record.md
+          git status --porcelain > replication-run/pre_execution_status.txt
+          sha256sum value_flow_simulator_v0.4.py o1_robustness_v0_5.py independent_o1_validator_v0_5.py prepare_o1_independent_evidence_v0_5.py tests/test_o1_robustness_v0_5.py tests/test_independent_o1_validator_v0_5.py > replication-run/input-sha256.txt
+
+      - name: O1 contract tests
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m unittest discover -s tests -p 'test_o1_robustness_v0_5.py' -v 2>&1 | tee replication-run/o1-contract-tests.txt
+
+      - name: O1 controlled execution
+        shell: bash
+        run: |
+          set -o pipefail
+          python3 o1_robustness_v0_5.py --engine value_flow_simulator_v0.4.py --output-dir o1_evidence 2>&1 | tee replication-run/o1_execution.log
+
+      - name: Prepare independent evidence
+        shell: bash
+        run: |
+          python3 prepare_o1_independent_evidence_v0_5.py --evidence-dir o1_evidence --commit "$(git rev-parse HEAD)"
+
+      - name: Full regression
+        shell: bash
+        run: |
+          set -o pipefail
+          set +e
+          python3 -m unittest discover -s tests -p 'test*.py' -v 2>&1 | tee replication-run/regression.log
+          rc=${PIPESTATUS[0]}
+          set -e
+          python3 - <<PY
+          import json
+          from pathlib import Path
+          Path('regression_status.json').write_text(json.dumps({'status': 'PASS' if ${rc} == 0 else 'FAIL', 'exit_status': ${rc}, 'commit': '$(git rev-parse HEAD)'}, indent=2), encoding='utf-8')
+          PY
+          test "$rc" -eq 0
+
+      - name: Independent O1 validation
+        shell: bash
+        run: |
+          set -o pipefail
+          python3 independent_o1_validator_v0_5.py --evidence-dir o1_evidence --regression-status regression_status.json --commit "$(git rev-parse HEAD)" 2>&1 | tee replication-run/independent-validation.log
+
+      - name: Build replication report
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          ev=json.loads(Path('o1_evidence/independent_validation.json').read_text())
+          reg=json.loads(Path('regression_status.json').read_text())
+          report=f'''# v0.6-D1 Independent Replication Report\n\n## Run identity\n- Operator: GitHub Actions clean runner\n- Canonical tag: `v0.5.0`\n- Canonical commit: `de7d11ed9457ede84c1954aa70a59331bf07b72e`\n- Observed HEAD: `{ev["commit"]}`\n\n## Results\n- O1 contract tests: PASS\n- O1 controlled execution: PASS\n- Full regression: {reg["status"]}\n- Independent O1 validation: {ev["status"]}\n- Run count: {ev["run_count"]}\n\n## Evidence boundary\nThis run evaluates reproducibility of the declared v0.5 O1 procedure only. It does not establish universal robustness or claims beyond the declared scope.\n\n## Final verdict\nH-001/H-002 remain subject to Research Gate review. This report records execution evidence; promotion to `DEMONSTRATED` requires protocol-level review.\n'''
+          Path('replication-run/REPORT.md').write_text(report, encoding='utf-8')
+          PY
+
+      - name: Preserve replication package
+        uses: actions/upload-artifact@v4
+        with:
+          name: acaa-v06-h001-replication
+          path: |
+            replication-run/
+            o1_evidence/
+            regression_status.json
+          retention-days: 90
