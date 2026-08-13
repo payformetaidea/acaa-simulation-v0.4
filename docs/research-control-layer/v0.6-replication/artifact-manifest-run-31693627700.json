@@ -1,0 +1,40 @@
+{
+  "protocol": "v0.6-D1",
+  "run_id": 31693627700,
+  "workflow_artifact": {
+    "artifact_id": 9178444896,
+    "name": "acaa-v06-h001-replication",
+    "size_in_bytes": 249069,
+    "sha256": "0607c2cc8551c6d149a169c50cedadcd9a46c2d34425b1f1a67377108f7cf820",
+    "retention_expires": "2026-11-11T11:00:46Z"
+  },
+  "canonical_commit": "de7d11ed9457ede84c1954aa70a59331bf07b72e",
+  "execution_head_sha": "aecb538a3e29b609dc37637b632c6a7cce0cac0a",
+  "hash_algorithm": "SHA-256",
+  "records": [
+    {"relative_path":"replication-run/REPORT.md","byte_size":738,"sha256":"644b1cdc224166075d08990b690f464f8072e15cbed9691e4710eefa8d9bb634","role":"human-readable replication report (run-generated; incomplete against hardened template)"},
+    {"relative_path":"replication-run/environment-record.md","byte_size":414,"sha256":"1e75e68d64a38a7afb5b2551ffa26cf647c869489d55e7cd329508b43a12d8c2","role":"environment record"},
+    {"relative_path":"replication-run/independent-validation.log","byte_size":746,"sha256":"5ddd6914cffafd44be95b17fa4428661b81dc88e63bc1f1ac249ac57b3bdf4ba","role":"independent validation log"},
+    {"relative_path":"replication-run/input-sha256.txt","byte_size":597,"sha256":"49dfc59b9740d377c823cb5b6ec37209c776007900c639855839a846c8492277","role":"input SHA-256 record"},
+    {"relative_path":"replication-run/o1-contract-tests.txt","byte_size":825,"sha256":"ab02b58512f6a27f751c25faab702e5f2e6ff3bf96bdd129a23d366546540fea","role":"O1 contract-test output"},
+    {"relative_path":"replication-run/o1_execution.log","byte_size":3069,"sha256":"7f7079e5e6b7cbbba223c0bc514ef690ad93dbcb30120129be0f10ad7a634fce","role":"O1 execution result"},
+    {"relative_path":"replication-run/pre_execution_status.txt","byte_size":20,"sha256":"eab487bcfe4d90854185ca39e67e2ed318744b94c6bc01751d609ac5863f837c","role":"pre-execution working-tree status"},
+    {"relative_path":"replication-run/regression.log","byte_size":1338,"sha256":"29570be4c16f5a2b3b6673667f68ca471fadc97f4eb135a7d7d99d83571eb350","role":"full regression output"},
+    {"relative_path":"o1_evidence/independent_validation.json","byte_size":745,"sha256":"9c7dacdaa7046404f2a5107346bfcc36cd63d4957de44e257f981297f52a98cf","role":"machine-readable independent validation"},
+    {"relative_path":"o1_evidence/o1_evidence.json","byte_size":648471,"sha256":"bf78c3f585c93093b01fd1ec5e4e6d23ec0d5eb314a4c1cc808968994d83206c","role":"machine-readable O1 evidence aggregate"},
+    {"relative_path":"o1_evidence/runs/seed_42.json","byte_size":156580,"sha256":"7f1153077882c4bd12177b419e907a1f94517908898dec59884b8947d070929f","role":"seed-level O1 evidence"},
+    {"relative_path":"o1_evidence/runs/seed_137.json","byte_size":148231,"sha256":"af15c98673e26392e0660659342cbb761a9e41c7d783997b2a59e5008ebdce1b","role":"seed-level O1 evidence"},
+    {"relative_path":"o1_evidence/runs/seed_256.json","byte_size":195447,"sha256":"56f8c5c91973c656ae49d7d766c9bc1e04f49bb6d7471070a307a7356d3821d5","role":"seed-level O1 evidence"},
+    {"relative_path":"o1_evidence/runs/seed_512.json","byte_size":228557,"sha256":"d9c7771c993dfd79e1fdc5df36d5f9c7f6deaffc63b63afbefcc999b59a3f232","role":"seed-level O1 evidence"},
+    {"relative_path":"o1_evidence/runs/seed_1024.json","byte_size":155876,"sha256":"fd2561c2c82ec0e65ad7213acc217f6f0693382c9d4a57739bb3c1043abf3e46","role":"seed-level O1 evidence"},
+    {"relative_path":"o1_evidence/runs/seed_2048.json","byte_size":155708,"sha256":"fad025779ff0b6e508ac15a93340ccc0af271c87bcf2074f1ab170efd791f6dc","role":"seed-level O1 evidence"},
+    {"relative_path":"o1_evidence/runs/seed_4096.json","byte_size":266407,"sha256":"812ce82559b163837b0aecd7a9643c4c6bd21209d4d5c3df7e6546233014ceec","role":"seed-level O1 evidence"},
+    {"relative_path":"o1_evidence/runs/seed_8192.json","byte_size":191106,"sha256":"ac104a4854f4dfb7b01c68f22dc304723ca73858dd9cbf96a39dc80d63d1a6d0","role":"seed-level O1 evidence"},
+    {"relative_path":"o1_evidence/runs/seed_16384.json","byte_size":155055,"sha256":"8dd41819c62fee2d099f41472145bb6b01f049acc742831964c644a787c0f9f4","role":"seed-level O1 evidence"},
+    {"relative_path":"o1_evidence/runs/seed_32768.json","byte_size":117708,"sha256":"d259c715ca7f898da0e7f4297c21a4f2cc5128a4c59a180cd05dfac0dead69a8","role":"seed-level O1 evidence"},
+    {"relative_path":"o1_evidence/runs/seed_65536.json","byte_size":227795,"sha256":"b444e02de2c25ba98b8a6d4c90edd34b3f1a3539b89ef7d822c75ed84681ed78","role":"seed-level O1 evidence"},
+    {"relative_path":"o1_evidence/runs/seed_131072.json","byte_size":155674,"sha256":"3100decb9caa57bcc616c114ea6f95a9c1454d4059a0fc85025df29230710e2c","role":"seed-level O1 evidence"},
+    {"relative_path":"regression_status.json","byte_size":98,"sha256":"48d2e604ba369d896d4df49ab9a6b0a57a3fe4fbd60d52a2ba21a6e7b1ea4de7","role":"machine-readable regression status"}
+  ],
+  "reconciliation_note": "Manifest reconstructed from the retained GitHub Actions artifact for Run #31693627700. The manifest itself is post-run curation and is not part of the frozen v0.5.0 baseline. The run-generated REPORT.md is preserved unchanged and separately classified as incomplete against the hardened report template."
+}
