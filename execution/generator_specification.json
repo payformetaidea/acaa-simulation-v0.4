@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "generator_id": "ACAA-H-AICR-ABM-G0",
+  "evidence_classification": "IN_SILICO_THEORETICAL_EVIDENCE",
+  "cohort_nature": "THEORETICAL_AGENT_BASED_SIMULATION",
+  "human_empirical_claim": false,
+  "purpose": "Generate reproducible theoretical agent-based cohorts for algorithmic evaluation only.",
+  "independent_unit": "user_or_agent_identity_over_registered_study_window",
+  "nested_observation": "interaction_record",
+  "cohort_rules": {
+    "G1_Pure_Consumer": "consumption-dominant agent; no substantive original contribution",
+    "G2_Low_Producer": "low-frequency original contribution",
+    "G3_High_Producer": "high-frequency substantive contribution or synthesis",
+    "G4_Iterative_Researcher": "iterative contribution with preregistered temporal refinement",
+    "G5_Adversarial_Spam": "adversarial or spam-oriented interaction policy",
+    "G6_Synthetic_AI": "declared synthetic AI agent under fixed generation protocol",
+    "G7_Human_Expert": "expert-proxy agent satisfying preregistered qualification rules; not human evidence"
+  },
+  "randomness": "all stochastic draws use the registered seed and deterministic stream partitioning",
+  "identity": "stable unit_id and UUID5 derived from frozen namespace and canonical unit key",
+  "prohibited": "execution/generate_controlled_dataset.py"
+}

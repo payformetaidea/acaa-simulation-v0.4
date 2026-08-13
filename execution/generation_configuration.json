@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "seed": 42,
+  "temperature": 0.0,
+  "max_length": null,
+  "uuid_version": "UUID5",
+  "namespace": "acaa-h-aicr-g0",
+  "cohorts": 7,
+  "units_per_cohort": 97,
+  "total_independent_units": 679,
+  "split_allocation": {"train": 58, "validation": 19, "test": 20},
+  "generation_mode": "deterministic_abm",
+  "llm_used": false,
+  "model_revision": null,
+  "prompt_template_hash": null,
+  "timestamp_source": "deterministic_study_clock",
+  "human_empirical_data": false
+}

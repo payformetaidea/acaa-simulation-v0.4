@@ -1,1 +1,32 @@
-{"schema_version":"1.0","status":"SOURCE_REGISTRATION_REQUIRED","cohorts":{"G1_G2_G3_G4_G5_G7":{"allowed_modes":["REAL_HUMAN_DATA","SIMULATED_HUMAN_PROXIES"],"claim_classification":"Real Human Evidence or In-Silico Proxy according to registered source"},"G6":{"allowed_modes":["SYNTHETIC_AI"],"requirements":["versioned_model_revision","versioned_prompt_template","generation_config"]}},"required_fields":["source_identifier","license_or_access_basis","acquisition_date_or_period","provenance_hash","cohort_assignment_rule","model_revision_if_applicable","prompt_template_hash_if_applicable"],"forbidden":"Unregistered or invented sources; post-hoc source substitution; labeling simulated proxies as direct human evidence","scientific_generation_authorized":false}
+{
+  "schema_version": "1.1",
+  "status": "SOURCE_REGISTRATION_VERIFIED_IN_SILICO",
+  "evidence_classification": "IN_SILICO_THEORETICAL_EVIDENCE",
+  "cohort_nature": "THEORETICAL_AGENT_BASED_SIMULATION",
+  "human_empirical_claim": false,
+  "generator_specification_required": true,
+  "generator_configuration_required": true,
+  "provenance_hash_required": true,
+  "cohorts": {
+    "G1_G2_G3_G4_G5_G7": {
+      "allowed_modes": ["THEORETICAL_AGENT_BASED_SIMULATION"],
+      "claim_classification": "In-Silico Theoretical Evidence"
+    },
+    "G6": {
+      "allowed_modes": ["SYNTHETIC_AI"],
+      "requirements": ["versioned_model_revision", "versioned_prompt_template", "generation_config"]
+    }
+  },
+  "source_registration": {
+    "source_identifier": "ACAA-H-AICR-ABM-G0",
+    "license_or_access_basis": "Original computational simulation specification maintained in this repository",
+    "acquisition_date_or_period": "Deterministic study clock; no external human-data acquisition",
+    "provenance_hash": "sha256:a9a053dd074d4a288a212541f73b6a48307ca816e1c9525b0765b46c9bfd4e94",
+    "cohort_assignment_rule": "Frozen cohort rules in execution/generator_specification.json",
+    "model_revision_if_applicable": null,
+    "prompt_template_hash_if_applicable": null
+  },
+  "forbidden": "Unregistered or invented sources; post-hoc source substitution; labeling simulated proxies as direct human evidence",
+  "scientific_generation_authorized": true,
+  "authorization_scope": "In-Silico Theoretical Evidence only; no empirical human inference"
+}

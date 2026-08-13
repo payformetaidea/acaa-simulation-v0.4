@@ -1,18 +1,28 @@
 # G0 Data Pipeline Status
 
-Status: LEVEL-B PREPARATION — POWER PARAMETER REQUIRED
+Status: SCIENTIFIC_GENERATION_READY — IN-SILICO THEORETICAL EVIDENCE
 
-Completed in this step:
+Completed:
 
-- registered deterministic power-analysis guard for H-AICR-007;
-- registered deterministic controlled/synthetic dataset generator for harness validation;
-- retained the existing Draft-07 dataset schema and seed=42 registration;
-- preserved the rule that the 20-per-cohort engineering dataset is not scientific evidence.
+- frozen conservative dispersion assumption for H-AICR-007 (CV=0.60; 97 independent units/cohort; 679 total);
+- closed sampling frame with independent analytical units and nested interaction records;
+- registered deterministic split allocation (58/19/20 per cohort) and disjointness requirements;
+- registered formal In-Silico Boundary for G1-G7;
+- frozen theoretical agent-based generator specification and generation configuration;
+- registered provenance hash for the generator specification/configuration pair.
 
-Blocking condition before confirmatory scientific generation:
+Evidence boundary:
 
-- register an independently justified variance/dispersion assumption for H-AICR-007;
-- freeze the resulting sample size before generating the scientific dataset;
-- then generate and freeze dataset/splits and run user-disjoint + temporal-disjoint checks.
+- the generated dataset is In-Silico Theoretical Evidence only;
+- no generated unit may be labeled or interpreted as direct empirical human evidence;
+- the existing controlled/synthetic harness remains distinct from the scientific-generation layer.
 
-Master Execution Hash remains intentionally withheld until all required scientific artifacts are real and verified.
+Next gate:
+
+- execute the registered generator to produce 679 independent analytical units;
+- validate 100% against the frozen schema;
+- freeze deterministic splits;
+- run record-, unit-, user/agent-, and temporal-disjoint leakage checks;
+- verify immutability before M-CEL preflight.
+
+Master Execution Hash remains withheld until these artifacts are generated and verified.
