@@ -1,9 +1,9 @@
 cff-version: 1.2.0
-title: "ACAA — Adaptive Cognitive Architecture v0.4"
+title: "ACAA — Adaptive Cognitive Architecture v0.5.0"
 message: "If you use this software, simulation, validation artifacts, or associated documentation, please cite this work."
 type: software
-version: "0.4"
-date-released: "2026-08-11"
+version: "0.5.0"
+date-released: "2026-08-14"
 authors:
   - family-names: Valaee
     given-names: Pouria
@@ -19,3 +19,6 @@ keywords:
   - validation
   - decision intelligence
   - organizational intelligence
+  - evidence governance
+  - provenance
+  - reproducibility
