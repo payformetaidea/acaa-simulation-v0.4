@@ -4,14 +4,17 @@
 
 The Research Control Layer records how ACAA research claims, evidence, limitations, hypotheses, reconciliation, and release controls are related.
 
-This package is documentation-only. It does not modify the candidate baseline implementation at `de7d11ed9457ede84c1954aa70a59331bf07b72e`.
+This package is documentation-only. It does not modify the validated v0.5 implementation target at `de7d11ed9457ede84c1954aa70a59331bf07b72e`.
 
 ## Baseline reference
 
 - Release/tag: `v0.5.0`
 - Commit: `de7d11ed9457ede84c1954aa70a59331bf07b72e`
-- Governance status in the repository baseline artifact: `BASELINE CANDIDATE — FINAL CI REQUIRED`
-- Important: the public README currently describes v0.5.0 as frozen. This package does not resolve that inconsistency; it records the evidence boundary and preserves the repository artifact as the authoritative governance record.
+- Governance status: `FROZEN`
+- Freeze governance merge: `94dbfe6da3c62a366c9423a6c785e4b1a74ce340`
+- Final CI: O1 Run #58 / O2 Run #31 — PASS
+
+The validated candidate commit remains the immutable v0.5 release target. The governance freeze was subsequently recorded by the governance merge without rewriting or moving the `v0.5.0` tag.
 
 ## Claim ontology
 
