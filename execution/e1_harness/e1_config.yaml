@@ -1,0 +1,33 @@
+protocol: ACAA-v0.6-E1
+status: PREREGISTERED
+control_target:
+  tag: v0.5.0
+  commit: de7d11ed9457ede84c1954aa70a59331bf07b72e
+seeds:
+  expansion:
+    - 1001
+    - 1002
+    - 1003
+    - 1004
+    - 1005
+    - 1006
+    - 1007
+    - 1008
+    - 1009
+    - 1010
+  count: 10
+  policy: fixed-before-execution
+execution:
+  clean_runner: true
+  containerized: true
+  third_party_dependencies: false
+outputs:
+  raw_logs: true
+  metrics: true
+  hashes: true
+  provenance: true
+validation:
+  schema: true
+  integrity: true
+  reproducibility: true
+  invariant_checks: true
