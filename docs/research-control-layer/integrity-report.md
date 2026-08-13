@@ -2,7 +2,7 @@
 
 ## Verdict
 
-`CLEAN — self-consistent`
+`CLEAN — self-consistent and governance-reconciled`
 
 ## Counts
 
@@ -20,12 +20,16 @@ Rule 5: Every bounded claim must carry its scope qualification wherever the clai
 
 L-018 is a continuous Publication/Release Integrity Constraint. It prevents unsupported promotion, scope loss, and drift between evidence and public claims.
 
-## Baseline-state warning
+## Baseline-state reconciliation
 
-The repository currently contains two materially different statements: the root README describes v0.5.0 as a frozen baseline, while `docs/governance/ACAA_v0.5_BASELINE.md` still states `BASELINE CANDIDATE — FINAL CI REQUIRED`. The tag `v0.5.0` resolves to the candidate commit `de7d11ed...`.
+The previously identified discrepancy between the root README and `docs/governance/ACAA_v0.5_BASELINE.md` has been resolved on the v0.5 governance branch. The baseline governance artifact now records `FROZEN`, with Final CI evidence and the unchanged `v0.5.0` tag target.
 
-This package does not silently resolve that governance discrepancy. It preserves the evidence boundary and therefore must not be cited as proof that the Freeze transition itself is complete.
+The validated release target remains `de7d11ed9457ede84c1954aa70a59331bf07b72e`. The governance transition was recorded by merge commit `94dbfe6da3c62a366c9423a6c785e4b1a74ce340` without rewriting or moving the tag.
+
+## Finding F-001
+
+`F-001 — Governance Freeze Incompleteness` is resolved by the completed Final CI → Governance Reconciliation → Freeze chain recorded in the repository history.
 
 ## Release boundary
 
-This package is additive documentation. It does not alter the v0.5 implementation, tag, or governance artifact.
+This package is additive documentation. It does not alter the validated v0.5 implementation target or move the `v0.5.0` tag.
