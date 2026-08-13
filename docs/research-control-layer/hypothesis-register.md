@@ -1,6 +1,6 @@
 # Artifact 4 — v0.6 Hypothesis Register Draft 0.1
 
-Control baseline for experiments: v0.5.0 candidate reference `de7d11ed9457ede84c1954aa70a59331bf07b72e`.
+Control baseline for experiments: validated v0.5.0 release target `de7d11ed9457ede84c1954aa70a59331bf07b72e`. Governance state: `FROZEN`.
 
 | H-ID | Derived limitation | Hypothesis / testable prediction | Independent variable | Dependent variable | Falsification condition | Target | Priority |
 |---|---|---|---|---|---|---|---|
