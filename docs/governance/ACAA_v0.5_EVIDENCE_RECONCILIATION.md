@@ -1,9 +1,12 @@
 # ACAA v0.5 — Evidence Reconciliation
 
-**Status:** COMPLETE — Candidate Baseline Gate Passed
+**Status:** COMPLETE — Frozen Baseline
 **Date:** 2026-08-12
 **Integrated CI:** Run #56 / 31612056935
 **Integrated HEAD:** `65ec8cd8741c37de30c03e1b4e8257cf593b6fd6`
+**Final CI:** Run #58 / 31612771156 — PASS
+**Validated baseline commit:** `de7d11ed9457ede84c1954aa70a59331bf07b72e`
+**Release tag:** `v0.5.0` → `de7d11ed9457ede84c1954aa70a59331bf07b72e`
 
 ## 1. O1 Evidence
 
@@ -29,16 +32,25 @@
 - Integrated evidence artifact: `9147667175`
 - SHA-256: `69a3f182795f1e4a72b0341d33a9642c5ae11902a71be3aa54845eae6541f02f`
 
-## 4. Integrity Boundary
+## 4. Finalization Evidence
+
+- Final CI run: `31612771156` (Run #58)
+- Final CI result: PASS
+- Exact validated candidate commit: `de7d11ed9457ede84c1954aa70a59331bf07b72e`
+- Release tag: `v0.5.0` → `de7d11ed9457ede84c1954aa70a59331bf07b72e`
+
+The final CI result closes the technical finalization predecessor requirement for the validated candidate. The release tag identifies the immutable implementation target; the subsequent governance documentation records the frozen state without changing implementation semantics.
+
+## 5. Integrity Boundary
 
 The integrated candidate preserves the v0.4 frozen baseline boundary. The comparison is anchored to the repository `main` baseline and records that the candidate is an additive evolution branch. No v0.4 Engine or v0.4 Validator modification is authorized by this reconciliation.
 
-## 5. Decision
+## 6. Decision
 
-The O1 + O2 candidate has satisfied the Integration CI gate and the evidence identifiers/digests have been reconciled against the recorded workflow artifacts.
+The O1 + O2 candidate satisfied the Integration CI gate, the evidence identifiers/digests were reconciled against the recorded workflow artifacts, and Final CI passed on the exact validated candidate commit.
 
-This document authorizes formation of the **v0.5 Baseline Candidate**. It does not itself constitute the final immutable/frozen release until the baseline artifact is committed, final CI passes on that exact commit, and the release tag is created.
+This reconciliation therefore records the **v0.5 Frozen Baseline**. The validation remains bounded by the evidence and scope stated in this document and the baseline artifact.
 
-## 6. Claims Boundary
+## 7. Claims Boundary
 
-Validation remains bounded by the O1/O2 specifications, controlled executions, independent evidence validation, and the integrated CI contract. No universal robustness, CAU behavioral correctness, or system-level effectiveness claim is established by this gate.
+Validation remains bounded by the O1/O2 specifications, controlled executions, independent evidence validation, integrated CI, and final CI. No universal robustness, CAU behavioral correctness, or system-level effectiveness claim is established by this gate.
