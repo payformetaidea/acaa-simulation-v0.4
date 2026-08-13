@@ -1,0 +1,27 @@
+{
+  "version": "v0.1",
+  "status": "PROTOCOL_LOCK_CANDIDATE",
+  "scientific_generation_authorized": false,
+  "planned_records_per_cohort": 97,
+  "cohorts": 7,
+  "planned_total_records": 679,
+  "primary_unit": "interaction_record",
+  "required_properties": [
+    "stable_record_uuid",
+    "privacy_preserving_user_or_agent_id",
+    "timestamp_utc",
+    "source_provenance",
+    "frozen_cohort_assignment",
+    "annotation_status"
+  ],
+  "split_constraints": [
+    "record_disjoint",
+    "user_disjoint_when_identity_available",
+    "temporal_disjoint_for_temporal_validation",
+    "outcome_blind_split_assignment"
+  ],
+  "prohibited_generation_source": "execution/generate_controlled_dataset.py",
+  "provenance_required_before_annotation": true,
+  "exclusion_requires_prespecified_reason_code": true,
+  "next_gate": "DATA_ACQUISITION_AND_PROVENANCE_AUDIT"
+}
