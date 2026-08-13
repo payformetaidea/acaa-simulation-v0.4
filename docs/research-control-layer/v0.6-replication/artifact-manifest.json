@@ -1,0 +1,24 @@
+{
+  "protocol": "v0.6-D1",
+  "purpose": "Predeclared artifact inventory for an independent H-001 replication.",
+  "canonical_commit": "de7d11ed9457ede84c1954aa70a59331bf07b72e",
+  "hash_algorithm": "SHA-256",
+  "hash_policy": "Hashes are run-specific evidence and MUST be computed by the independent operator. No expected digest is fabricated or inferred in advance.",
+  "inputs": [
+    "value_flow_simulator_v0.4.py",
+    "o1_robustness_v0_5.py",
+    "independent_o1_validator_v0_5.py",
+    "prepare_o1_independent_evidence_v0_5.py",
+    "tests/test_o1_robustness_v0_5.py",
+    "tests/test_independent_o1_validator_v0_5.py"
+  ],
+  "required_outputs": [
+    "o1_execution.log",
+    "o1_evidence/",
+    "regression.log",
+    "regression_status.json",
+    "o1_evidence/independent_validation.json"
+  ],
+  "records": [],
+  "operator_instruction": "Populate records with relative_path, byte_size, sha256, and role after the replication run. Do not replace a missing digest with a guessed value."
+}
