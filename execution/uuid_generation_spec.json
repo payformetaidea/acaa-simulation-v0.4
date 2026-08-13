@@ -1,0 +1,20 @@
+{
+  "version": "v0.1",
+  "status": "REGISTERED_CANDIDATE",
+  "determinism": true,
+  "seed": 42,
+  "record_uuid": {
+    "format": "UUID",
+    "method": "UUID5",
+    "namespace": "preregistered-fixed-namespace-required",
+    "name_inputs": ["study_id", "unit_id", "interaction_id", "timestamp_utc"],
+    "reason": "Python uuid.uuid4() is not seed-deterministic and therefore is prohibited for reproducible scientific record identity."
+  },
+  "unit_id": {
+    "format": "privacy_preserving_stable_identifier",
+    "method": "UUID5",
+    "name_inputs": ["study_id", "source_participant_key"]
+  },
+  "immutability": "assigned identifiers cannot be changed after provenance registration",
+  "scientific_generation_authorized": false
+}
