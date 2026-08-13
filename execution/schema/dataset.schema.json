@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/payformetaidea/acaa-simulation-v0.4/schema/h-aicr-dataset-v1.json",
+  "title": "H-AICR Scientific Interaction Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["record_uuid", "user_id", "interaction_id", "timestamp_utc", "group", "input_text"],
+  "properties": {
+    "record_uuid": {"type": "string", "pattern": "^[0-9a-fA-F-]{36}$"},
+    "user_id": {"type": "string", "minLength": 1},
+    "interaction_id": {"type": "string", "minLength": 1},
+    "timestamp_utc": {"type": "string", "format": "date-time"},
+    "group": {"type": "string", "enum": ["G1-Pure-Consumer", "G2-Low-Producer", "G3-High-Producer", "G4-Iterative-Researcher", "G5-Adversarial-Spam", "G6-Synthetic-AI", "G7-Human-Expert"]},
+    "input_text": {"type": "string", "minLength": 1},
+    "source_artifact_ids": {"type": "array", "items": {"type": "string"}},
+    "metadata": {"type": "object"}
+  }
+}
