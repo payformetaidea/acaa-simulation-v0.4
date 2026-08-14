@@ -1,15 +1,8 @@
 #!/usr/bin/env python3
-"""Contract-level regression tests for the M-P1/O2 reconciliation.
-
-These tests deliberately test the contract boundary, not any unproven external
-M-P1 implementation. They prevent the two failure modes found during strict
-replay: consuming aggregate.cau_records as an array and treating a missing
-records[] field as a valid empty dataset.
-"""
+"""Contract-level regression tests for the M-P1/O2 reconciliation."""
 import copy
 import re
 import unittest
-
 
 O2_ID_RE = re.compile(r"^CAU-[0-9]{6}$")
 LEGACY_MP1_V1_RE = re.compile(r"^CAU-[0-9A-F]{16}$")
@@ -20,11 +13,7 @@ def artifact(records):
 
 
 def classify_mp1_v11(data):
-    """Reference contract classifier for the v1.1 draft.
-
-    This is intentionally tiny and contract-oriented. It is not claimed as
-    the missing historical implementation used by the earlier replay.
-    """
+    """Reference classifier for the v1.1 draft; not a historical implementation."""
     if not isinstance(data, dict):
         return "DATA_INTEGRITY_FAIL", None
     records = data.get("records")
@@ -44,12 +33,10 @@ def classify_mp1_v11(data):
             return "DATA_INTEGRITY_FAIL", None
         ids.append(cau_id)
     value = len(set(ids))
-    if value == 0:
-        return "VALID / ZERO_COUNT", 0
-    return "VALID", value
+    return ("VALID / ZERO_COUNT", 0) if value == 0 else ("VALID", value)
 
 
-class M P1ContractReconciliationTests(unittest.TestCase):
+class MP1ContractReconciliationTests(unittest.TestCase):
     def test_canonical_o2_contract_uses_records_and_count(self):
         data = artifact([{"cau_id": "CAU-000001"}, {"cau_id": "CAU-000002"}])
         self.assertIsInstance(data["records"], list)
