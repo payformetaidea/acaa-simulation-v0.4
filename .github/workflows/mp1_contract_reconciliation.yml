@@ -1,0 +1,26 @@
+name: M-P1 / O2 Contract Reconciliation
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract-reconciliation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Run contract reconciliation tests
+        run: python3 -m unittest -v tests/test_mp1_contract_reconciliation.py
