@@ -20,10 +20,29 @@ encoding: UTF-8
 canonicalization: uppercase + trim whitespace
 ```
 
-- empty/null → `FAILED`;
-- malformed/non-matching → excluded and logged;
-- duplicate → counted once;
+- empty/null ID → `FAILED`;
+- malformed/non-matching ID → excluded and logged;
+- duplicate ID → counted once;
 - negative M-P1 → `DATA_INTEGRITY_FAIL`.
+
+## Manifest validation boundary
+
+A manifest is valid for M-P1 extraction only when its structure is parseable and its CAU records can be deterministically classified under the canonical CAU_ID schema.
+
+```text
+At least one valid canonical CAU_ID
+    → normal M-P1 extraction
+
+All entries malformed / non-matching
+    → DATA_INTEGRITY_FAIL
+    → do NOT record M-P1 = 0
+
+Valid manifest structure with zero CAU records
+    → M-P1 = 0
+    → VALID execution + ZERO_COUNT
+```
+
+This distinction is binding: an empty valid output is a measured zero; an unusable manifest is an integrity failure.
 
 ## Boundary
 
