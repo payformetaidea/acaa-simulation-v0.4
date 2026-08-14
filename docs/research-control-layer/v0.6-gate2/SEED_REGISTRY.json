@@ -1,0 +1,99 @@
+{
+  "candidate_extraction": "first 4 SHA-256 digest bytes, unsigned big-endian 32-bit integer",
+  "created_at": "2026-08-14T16:25:39Z",
+  "duplicate_policy": "reject and increment per-index counter",
+  "encoding": "UTF-8",
+  "forbidden_inputs": [
+    "timestamp",
+    "OS entropy",
+    "runtime RNG",
+    "execution-dependent input"
+  ],
+  "generator": "SHA-256(domain | NONREF | index | counter)",
+  "protocol": "ACAA-G2-v0.6-SEED-REGISTRY-v1",
+  "rejected_values": [
+    0,
+    1
+  ],
+  "rule": "Rule B",
+  "schema_version": "1.0",
+  "seeds": [
+    {
+      "counter": 0,
+      "index": 0,
+      "role": "REFERENCE",
+      "seed_id": "REF-01",
+      "value": 2168776509
+    },
+    {
+      "counter": 0,
+      "index": 1,
+      "role": "NON_REFERENCE",
+      "seed_id": "NONREF-01",
+      "value": 3977867781
+    },
+    {
+      "counter": 0,
+      "index": 2,
+      "role": "NON_REFERENCE",
+      "seed_id": "NONREF-02",
+      "value": 5319100
+    },
+    {
+      "counter": 0,
+      "index": 3,
+      "role": "NON_REFERENCE",
+      "seed_id": "NONREF-03",
+      "value": 1223121603
+    },
+    {
+      "counter": 0,
+      "index": 4,
+      "role": "NON_REFERENCE",
+      "seed_id": "NONREF-04",
+      "value": 1164549617
+    },
+    {
+      "counter": 0,
+      "index": 5,
+      "role": "NON_REFERENCE",
+      "seed_id": "NONREF-05",
+      "value": 208381252
+    },
+    {
+      "counter": 0,
+      "index": 6,
+      "role": "NON_REFERENCE",
+      "seed_id": "NONREF-06",
+      "value": 1440089971
+    },
+    {
+      "counter": 0,
+      "index": 7,
+      "role": "NON_REFERENCE",
+      "seed_id": "NONREF-07",
+      "value": 3991924077
+    },
+    {
+      "counter": 0,
+      "index": 8,
+      "role": "NON_REFERENCE",
+      "seed_id": "NONREF-08",
+      "value": 2787646547
+    },
+    {
+      "counter": 0,
+      "index": 9,
+      "role": "NON_REFERENCE",
+      "seed_id": "NONREF-09",
+      "value": 1045378760
+    },
+    {
+      "counter": 0,
+      "index": 10,
+      "role": "NON_REFERENCE",
+      "seed_id": "NONREF-10",
+      "value": 2035830628
+    }
+  ]
+}
