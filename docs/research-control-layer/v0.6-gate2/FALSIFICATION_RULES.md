@@ -56,37 +56,37 @@ If sensitivity is robust → report as a methodological note; do not falsify H-0
 
 ## H-004 — Atomic / Seed Variability Characterization
 
-Gate 2 H-004 is **NON-DIRECTIONAL**:
+H-004 is direction-neutral with respect to the direction of seed effects. Its variance-component alternative is one-sided at the boundary zero:
 
 ```text
 H0: σ²_B = 0
-H1: σ²_B ≠ 0
+H1: σ²_B > 0
 ```
 
 ### F-4.1
 
-Removed. Non-identifiability or model failure is `NOT DEMONSTRATED` or `NOT EVALUATED`, depending on evidence integrity. It is not falsification.
+No active falsification condition is defined for the variance-component hypothesis in Gate 2. Non-identifiability or model failure is `NOT DEMONSTRATED` or `NOT EVALUATED`, depending on evidence integrity.
 
 ### F-4.2
 
-`CV_between > 0.10` is a **diagnostic materiality threshold**, not a falsification rule. A high between-seed CV is evidence of larger seed-associated differences and therefore cannot logically falsify the non-directional H-004 characterization hypothesis.
+`CV_between > 0.10` is a **diagnostic materiality threshold**, not a falsification rule. A high between-seed CV is evidence of larger seed-associated differences and therefore does not logically contradict the H-004 characterization hypothesis.
 
 ### F-4.3
 
-Directional falsification is **DEFERRED / NOT APPLICABLE in Gate 2**. A future perturbation-arm experiment may preregister a signed contrast such as:
+No signed-effect falsification pathway is active in Gate 2. A future perturbation-arm experiment may preregister a signed contrast such as:
 
 ```text
 Δ = variability(perturbed) − variability(baseline)
 ```
 
-with a pre-registered minimum effect. Such a directional rule does not exist in the current 11×3 design.
+with a pre-registered minimum effect. Such a rule is outside the current 11×3 design.
 
 ## H-004 decision rule in Gate 2
 
-- Significant/non-zero variance characterization with valid evidence → supports H-004, subject to all Gate criteria.
-- Non-significant permutation result → `NOT DEMONSTRATED`.
+- `p < 0.05` from the preregistered variance-component permutation test → evidence supports `σ²_B > 0`; H-004 may be `DEMONSTRATED`, subject to all Gate criteria.
+- `p ≥ 0.05` → `NOT DEMONSTRATED`; this does not establish `σ²_B = 0`.
 - Model non-identifiability → `NOT DEMONSTRATED` or `NOT EVALUATED` as specified above.
-- Gate 2 contains no active directional falsification pathway for H-004.
+- The current Gate-2 design contains no active signed-effect falsification pathway for H-004.
 
 ## Evidence-integrity override
 
