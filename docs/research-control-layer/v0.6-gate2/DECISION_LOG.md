@@ -9,7 +9,7 @@
 | D2-005 | Design = 11 seeds × 3 repeats = 33 | PLANNED | Seed Policy |
 | D2-006 | No execution before protocol freeze | ACTIVE | Gate 2 Protocol |
 | D2-007 | Missing raw evidence cannot be reconstructed | ACTIVE | Evidence Contract |
-| D2-008 | H-004 Gate-2 ontology is non-directional | ACTIVE | SAP / Falsification Rules |
+| D2-008 | H-004 is direction-neutral with respect to the direction of seed effects; variance-component alternative is `H1: σ²_B > 0` | ACTIVE | SAP / Falsification Rules |
 | D2-009 | Canonical evidence IDs E-001…E-010 reconciled | ACTIVE | Evidence Contract |
 | D2-010 | G2-0.6 outlier policy uses detection/retention/exclusion separation | ACTIVE | Outlier Policy |
 | D2-011 | F-3.5 requires method attribution + threshold + sensitivity impact | ACTIVE | Falsification Rules |
