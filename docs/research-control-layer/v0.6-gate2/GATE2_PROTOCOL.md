@@ -32,7 +32,14 @@ Execution-level variability, including seed-associated variability, can be ident
 
 Pre-run state: `PROPOSED`.
 
-H-004 is **non-directional** in Gate 2. The current design has no perturbation arm and therefore no preregistered signed contrast.
+H-004 is **direction-neutral with respect to the direction of seed effects**. Its variance-component alternative is one-sided at the boundary zero:
+
+```text
+H0: σ²_B = 0
+H1: σ²_B > 0
+```
+
+The current design has no perturbation arm and therefore no preregistered signed contrast.
 
 ## 4. Experimental design
 
@@ -72,7 +79,7 @@ It defines:
 - ICC;
 - CV definitions;
 - confidence intervals;
-- the non-directional H-004 permutation test with `B=9999`;
+- the H-004 variance-component permutation test with `H0: σ²_B = 0`, `H1: σ²_B > 0`, and `B=9999`;
 - diagnostic/model limitations;
 - outlier and sensitivity analysis.
 
@@ -90,7 +97,7 @@ Hypothesis-specific rules are defined in `FALSIFICATION_RULES.md`.
 
 H-003 has active falsification conditions for excessive variability and severe failure.
 
-H-004 has no directional falsification pathway in Gate 2. A non-significant result is `NOT DEMONSTRATED`; evidence-integrity failure is `NOT EVALUATED`.
+H-004 has no active signed-effect falsification pathway in Gate 2. A non-significant result is `NOT DEMONSTRATED`; evidence-integrity failure is `NOT EVALUATED`.
 
 ## 10. Failure policy
 
