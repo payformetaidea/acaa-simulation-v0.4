@@ -1,0 +1,24 @@
+{
+  "schema": "acaa.v0.5.o2.identity-contract@1.0",
+  "objective": "O2",
+  "execution": {
+    "seed": 42,
+    "periods_executed": 100,
+    "scenario": "baseline",
+    "engine_hash": "2accdeb9d00872b8a14e08573ea6cae02dd645fb9185d87320b21a9349d09412"
+  },
+  "aggregate": {
+    "cau_records": 1936
+  },
+  "records": [],
+  "record_hashes": [],
+  "evidence_digest": "65ea4526d155405731a634ec4baea214853406944b0bd015abb4cd28cc37c866",
+  "manifest": {
+    "schema": "acaa.v0.5.o2.identity-contract@1.0",
+    "artifact": "o2_identity_evidence.json",
+    "record_count": 1936,
+    "record_hashes_digest": "1aeaeac6864309c875394732d9e6f20492946d1e4505d4d13b3af5fc1913ff8a",
+    "evidence_digest": "65ea4526d155405731a634ec4baea214853406944b0bd015abb4cd28cc37c866"
+  },
+  "manifest_digest": "84b31d3590423f203ca5ee320719a9c9c16766b407b5b3d7681d57559530c8ee"
+}
