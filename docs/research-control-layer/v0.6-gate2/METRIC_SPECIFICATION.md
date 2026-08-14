@@ -1,39 +1,84 @@
-# Gate 2 Metric Specification
+# Gate 2 M-P1 Metric Specification
 
 **Status:** DRAFT / PRE-REGISTRATION
+**Algorithm:** `M-P1-v1.0`
+**Protocol:** `v0.6-gate2`
 
-## Rule
+## Definition
 
-No metric becomes an acceptance metric merely because it is convenient to compute. Every metric must have a fixed definition, unit, extraction rule, validity rule, and provenance path before execution.
+```text
+M-P1(r) = |{c ∈ CAU : c ∈ output(r)}|
+```
 
-## Metrics
+M-P1 is the cardinality of the set of unique canonical CAU identifiers in a run's manifest.
 
-| ID | Metric | Status | Required definition before freeze |
-|---|---|---|---|
-| M-P1 | Primary output-consistency metric | REQUIRED | exact formula, denominator, tolerance, units, valid range |
-| M-001 | Time-to-completion | REQUIRED | start/stop events, clock source, units |
-| M-002 | Peak memory | REQUIRED if observable | sampling method, units, process scope |
-| M-003 | Output consistency | REQUIRED | deterministic comparison rule |
-| M-004 | Step variability | REQUIRED if step logs exist | event definition and aggregation |
-| M-005 | Quality score | OPTIONAL | deterministic scoring rubric fixed pre-run |
+## CAU_ID schema
 
-## Derived variability statistics
+```yaml
+pattern: "^CAU-[0-9A-F]{16}$"
+encoding: UTF-8
+canonicalization: uppercase + trim whitespace
+```
 
-For each quantitative metric where meaningful:
+- empty/null → `FAILED`;
+- malformed/non-matching → excluded and logged;
+- duplicate → counted once;
+- negative M-P1 → `DATA_INTEGRITY_FAIL`.
 
-- mean;
-- median;
-- standard deviation;
-- coefficient of variation (CV), with denominator explicitly stated;
-- range;
-- IQR;
-- confidence interval where justified;
-- within-seed and between-seed components where identifiable.
+## Boundary
 
-## Important restriction
+M-P1 measures cardinality stability only. Equal cardinality does not establish set identity, output-content consistency, or semantic equivalence.
 
-Thresholds such as `CV <= 5%` are not valid acceptance criteria until frozen in `ACCEPTANCE_CRITERIA.md`. Diagnostic values must not be silently promoted to acceptance criteria after observing data.
+## Extraction
 
-## Data-quality rules
+```text
+parse(manifest) → canonicalize → validate → unique IDs → len(set)
+```
 
-Missing, undefined, infinite, or non-comparable metric values must be reported explicitly. They may not be silently dropped.
+Deterministic: same artifact + same algorithm version → same value.
+
+## Aggregation
+
+```text
+n_s = number of valid runs for seed s
+μ_s = mean(M-P1) within seed
+σ_s = sample SD within seed
+CV_s = σ_s / μ_s, if μ_s > 0
+CV_s = UNDEFINED, if μ_s = 0
+
+N_total = Σ n_s
+μ_total = mean(M-P1) across valid runs
+```
+
+Frozen SAP definitions:
+
+```text
+CV_within  = sqrt(MS_W) / μ_total
+CV_total   = sqrt(σ̂²_total) / μ_total
+CV_between = SD(μ_s) / μ_total
+```
+
+If `μ_total = 0`: `ZERO_DENOMINATOR`; CVs undefined; no CV decision.
+
+## Hashing
+
+```text
+artifact_sha256 = SHA256(manifest_file)
+canonical_string =
+  metric=M-P1\n
+  version=M-P1-v1.0\n
+  run_id={run_id}\n
+  value={m_p1_value}\n
+  artifact_sha256={manifest_sha256}\n
+metric_hash = SHA256(canonical_string.encode("utf-8"))
+```
+
+Hashes are recorded in E-004 and E-009/E-010 as appropriate.
+
+## Synthetic illustration — not evidence
+
+`[47,48,47]` → mean `47.333`, sample SD approximately `0.577`.
+
+## Immutability
+
+After protocol freeze, schema, canonicalization, extraction, algorithm version, and serialization are immutable. Any change requires a new protocol version and re-authorization.

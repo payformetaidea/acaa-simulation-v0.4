@@ -5,7 +5,7 @@
 
 ## Scope
 
-This report template is reserved for the post-execution evidence package. It must not contain fabricated, placeholder-as-result, or post-hoc acceptance claims.
+Reserved for the post-execution evidence package. It must never contain fabricated results or placeholders represented as observations.
 
 ## Protocol identity
 
@@ -15,39 +15,39 @@ This report template is reserved for the post-execution evidence package. It mus
 
 ## Experimental design
 
-- Planned seeds: 11
-- Planned repeats per seed: 3
-- Planned atomic executions: 33
+- Seeds: 11 planned
+- Repeats per seed: 3 planned
+- Atomic executions: 33 planned
 - Verified executions: NOT VERIFIED
 
 ## Hypotheses
 
-| Hypothesis | Pre-run state | Post-run state |
+| Hypothesis | Pre-run | Post-run |
 |---|---|---|
 | H-003 | PROPOSED | NOT EVALUATED |
 | H-004 | PROPOSED | NOT EVALUATED |
 
-## Primary results
-
-No numerical Gate-2 results are currently verified in this repository state.
-
 ## Evidence package
 
-To be populated only after execution and validation:
+To be populated only after authorized execution and independent validation:
 
-- protocol manifest;
-- seed registry;
-- input hashes;
-- raw outputs;
-- execution logs;
-- machine-readable metrics;
-- independent validation;
-- variance decomposition;
-- outlier analysis;
-- provenance and decision record.
+- E-001 Execution Manifest;
+- E-002 Frozen Seed Registry;
+- E-003 Raw Outputs;
+- E-004 Machine-readable Metrics;
+- E-005 Execution Logs;
+- E-006 Independent Validation Output;
+- E-007 Variability/Outlier Analysis;
+- E-008 Human-readable Report;
+- E-009 Artifact Hashes;
+- E-010 Provenance/Decision Record.
+
+## Current results
+
+No Gate-2 execution result is currently verified by this template.
 
 ## Gate decision
 
 `NOT EVALUATED`
 
-No Gate-2 PASS, hypothesis promotion, or robustness claim may be inferred from this template.
+No Gate-2 PASS, hypothesis promotion, or robustness claim may be inferred from this document.

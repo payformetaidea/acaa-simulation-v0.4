@@ -12,181 +12,165 @@
 
 Gate 2 is an evidence-generating experiment. No Gate-2 result, hypothesis promotion, execution count, or PASS status is established by this document alone.
 
-The v0.5.0 baseline is immutable. Gate 2 may observe, execute, and analyze the declared method; it may not modify the baseline implementation, tag, or historical Gate-1 evidence.
+The v0.5.0 baseline and historical Gate-1 evidence remain immutable.
 
 ## 2. Research question
 
-Can the declared v0.5.0 method be characterized for repeatability and seed-associated variability under a preregistered, multi-seed, repeated-execution design, with all acceptance and falsification rules fixed before execution?
-
-### Subquestions
-
-- S1: What is the within-condition variability under repeated executions?
-- S2: What component of observed variability is associated with seed/condition differences?
-- S3: Are observed distributions and outliers compatible with the preregistered model assumptions?
-- S4: Are the primary metrics sufficiently defined and measured to support the stated characterization?
+Can the declared v0.5.0 method be characterized for repeatability and seed-associated variability under a preregistered repeated-execution design, with acceptance, falsification, failure, and evidence rules fixed before execution?
 
 ## 3. Hypotheses
 
 ### H-003 — Reproducibility Characterization
 
-The v0.5.0 method exhibits measurable repeatability under the declared execution conditions, and its variability can be quantified with preregistered metrics and uncertainty estimates.
+The frozen v0.5.0 method exhibits measurable repeatability under the declared execution conditions and its variability can be quantitatively characterized.
 
-**Epistemic state before execution:** `PROPOSED`.
+Pre-run state: `PROPOSED`.
 
-### H-004 — Atomic Variability Characterization
+### H-004 — Atomic / Seed Variability Characterization
 
-Variability attributable to execution-level conditions, including seed, can be identified and statistically characterized without changing the frozen method.
+Execution-level variability, including seed-associated variability, can be identified and quantitatively characterized under the declared design.
 
-**Epistemic state before execution:** `PROPOSED`.
+Pre-run state: `PROPOSED`.
 
-Neither hypothesis may become `SUPPORTED` or `DEMONSTRATED` until the corresponding evidence exists and the Gate-2 decision is independently reviewed.
+H-004 is **non-directional** in Gate 2. The current design has no perturbation arm and therefore no preregistered signed contrast.
 
-## 4. Experimental unit and design
+## 4. Experimental design
 
-The atomic experimental unit is one complete execution of the frozen v0.5.0 method under one declared seed and one declared execution condition.
-
-The proposed design is:
-
-- 11 seed conditions total: 1 fixed reference seed + 10 pre-registered non-reference seeds.
-- 3 repeated executions per seed condition.
+- 11 seeds: 1 fixed reference + 10 pre-registered non-reference seeds.
+- 3 repeats per seed.
 - Planned total: 33 atomic executions.
+- Atomic unit: one complete execution under one frozen seed/configuration.
 
-The number 33 is a **planned sample size**, not evidence that 33 executions have occurred.
-
-### Randomization
-
-Seed values must be frozen before execution. No seed may be added, removed, or replaced after seeing outcome data. Execution order must be recorded. If execution order is randomized, the randomization procedure and resulting order must be committed before the first run.
+`33` is a planned sample size, not evidence of completed execution.
 
 ## 5. Controlled variables
 
-- Frozen baseline commit/tag.
-- Input dataset and input hashes.
-- Container/image identity and digest.
-- Runtime/toolchain versions.
-- Protocol version.
-- Seed registry.
-- Execution configuration.
+- v0.5.0 baseline commit/tag;
+- input dataset and hashes;
+- runtime/toolchain/container identity;
+- protocol version;
+- frozen seed registry;
+- execution configuration.
 
-Any deviation must be recorded before interpreting affected results.
+Any deviation must be recorded and cannot be silently repaired.
 
-## 6. Primary and secondary metrics
+## 6. Metrics
 
-Metrics must be machine-readable and derived from immutable raw outputs/logs.
+Primary metric: `M-P1`, defined immutably in `METRIC_SPECIFICATION.md` as Atomic CAU Count, algorithm `M-P1-v1.0`.
 
-### Primary metric
+Secondary metrics may include time-to-completion, peak memory, output consistency, and step-level variability only when their deterministic extraction rules are preregistered.
 
-`M-P1` shall be the principal declared output-consistency metric. Its exact formula, units, valid range, and extraction procedure must be fixed in `METRIC_SPECIFICATION.md` before execution.
+## 7. Statistical analysis
 
-### Secondary metrics
+The binding SAP is `STATISTICAL_ANALYSIS_PLAN.md`.
 
-- `M-001`: time-to-completion.
-- `M-002`: peak memory usage.
-- `M-003`: output consistency.
-- `M-004`: step-level variability.
-- `M-005`: protocol-defined quality score, only if a deterministic scoring rule is available before execution.
+It defines:
 
-No metric may be retroactively selected as primary because it produces a favorable result.
-
-## 7. Statistical analysis plan
-
-The primary analysis is descriptive and variance-decomposition oriented. Inferential tests are secondary and must not substitute for direct reporting of effect sizes and uncertainty.
-
-Planned analyses include:
-
-- within-seed repeatability;
-- between-seed variability;
+- within-seed and between-seed estimands;
 - total variability;
-- confidence intervals where assumptions permit;
-- hierarchical/mixed-effects variance decomposition where identifiable;
-- outlier analysis under the predeclared rule;
-- sensitivity analysis with and without retained outliers.
+- signed and reported variance estimators;
+- ICC;
+- CV definitions;
+- confidence intervals;
+- the non-directional H-004 permutation test with `B=9999`;
+- diagnostic/model limitations;
+- outlier and sensitivity analysis.
 
-Normality tests such as Shapiro-Wilk are diagnostic, not proof of normality. Levene/Brown-Forsythe-type variance tests are diagnostic. ANOVA/Friedman or other inferential tests may be used only where their assumptions and pairing structure are appropriate and must not be treated as automatic acceptance criteria.
+Estimation, hypothesis testing, and Gate decision rules are separate layers.
 
-## 8. Acceptance framework
+## 8. Acceptance
 
-Acceptance thresholds are frozen in `ACCEPTANCE_CRITERIA.md` before execution.
+Binding thresholds are defined in `ACCEPTANCE_CRITERIA.md` and remain frozen before execution.
 
-The protocol distinguishes:
-
-- **Hard criteria:** required for a Gate-PASS decision.
-- **Diagnostic/soft criteria:** informative and reported separately; failure does not automatically equal Gate failure unless explicitly designated as a hard criterion before execution.
-
-A Gate-PASS cannot be inferred from an aggregate score or from a subset of favorable metrics.
+Hard criteria include execution analyzability, M-P1 variability, evidence integrity, metric determinism, and outlier robustness where applicable.
 
 ## 9. Falsification
 
-Falsification conditions are frozen in `FALSIFICATION_RULES.md` before execution. At minimum, the analysis must address:
+Hypothesis-specific rules are defined in `FALSIFICATION_RULES.md`.
 
-- excessive execution failure;
-- excessive primary-metric variability;
-- structural/non-random outliers;
-- material variance-model violations;
-- unexplained systematic variation;
-- toolchain or provenance failures.
+H-003 has active falsification conditions for excessive variability and severe failure.
 
-Falsification is evaluated against the hypothesis-specific rule, not by post-hoc threshold selection.
+H-004 has no directional falsification pathway in Gate 2. A non-significant result is `NOT DEMONSTRATED`; evidence-integrity failure is `NOT EVALUATED`.
 
-## 10. Evidence contract
+## 10. Failure policy
 
-Required evidence classes are defined in `EVIDENCE_CONTRACT.md`.
+`FAILURE_POLICY.md` is binding for denominator arithmetic, failure classification, no replacement, no imputation, no silent retry, and zero-count handling.
 
-The evidence chain must preserve:
+## 11. Outlier policy
 
-`Protocol → Inputs → Seed Registry → Execution Manifest → Raw Outputs/Logs → Derived Metrics → Validation → Analysis → Report → Decision`
+`OUTLIER_ANALYSIS.md` is binding. Detection does not equal exclusion. Primary analysis retains all observations. Any authorized exclusion requires Formal Protocol Review and sensitivity analysis.
 
-Raw evidence is immutable after execution. Derived documents may be generated post-run only under explicit provenance and versioning rules.
+## 12. Evidence contract
 
-## 11. Reconciliation policy
+The canonical evidence IDs are E-001 through E-010 in `EVIDENCE_CONTRACT.md`.
 
-Post-run reconciliation is allowed for documentation and derivation only when:
+Raw evidence outranks derived summaries. Derived summaries must remain traceable to exact raw artifacts.
 
-1. the underlying raw evidence remains preserved;
-2. the change is traceable;
-3. the original artifact is not overwritten;
-4. the reason for reconciliation is recorded;
-5. the reconciliation does not change a pre-registered criterion or threshold;
-6. any protocol ambiguity discovered before execution is resolved by a versioned protocol amendment and a new freeze before execution.
-
-Reconciliation cannot convert absent raw evidence into observed evidence and cannot retroactively change the experimental design.
-
-## 12. Independent validation
-
-Execution, validation, and Gate evaluation are logically separate roles. If one person performs more than one role, the overlap and timing must be disclosed.
+## 13. Independent validation
 
 Validation must independently verify:
 
-- protocol/baseline identity;
+- baseline/protocol identity;
 - seed registry;
-- artifact completeness;
-- metric derivation;
+- artifact completeness and hashes;
+- M-P1 derivation;
 - statistical calculations;
-- provenance integrity.
+- provenance.
 
-## 13. Freeze rule
+Execution, validation, and Gate evaluation are logically separate roles; overlaps must be disclosed.
 
-This protocol is not executable until:
+## 14. Freeze rule
 
-- all referenced specifications exist;
-- seed policy is complete;
-- acceptance and falsification rules are complete;
-- evidence contract is complete;
-- a formal review is recorded;
-- the final protocol commit is identified;
-- a Gate-2 protocol tag is created.
+Execution is prohibited until all of the following are satisfied:
 
-After freeze, changes require an explicit versioned amendment. No silent edits are permitted.
+1. every referenced specification exists;
+2. cross-document consistency check passes;
+3. seed registry is complete and frozen;
+4. formal review is recorded;
+5. final protocol commit is identified;
+6. atomic protocol tag is created.
 
-## 14. Scope boundary
+After freeze, no silent edit is permitted. Any binding change requires a versioned amendment and a new freeze before affected execution.
 
-A successful Gate 2 would support a bounded characterization of the declared v0.5.0 method under the tested conditions. It would not establish universal reproducibility, scientific generalizability, or robustness outside the declared protocol scope.
+## 15. Atomic freeze package
 
-## 15. Current decision
+The package must contain at minimum:
 
-**G2-0:** `IN PROGRESS`
+```text
+docs/research-control-layer/v0.6-gate2/
+├── GATE2_PROTOCOL.md
+├── H003_H004_HYPOTHESES.md
+├── METRIC_SPECIFICATION.md
+├── ACCEPTANCE_CRITERIA.md
+├── FALSIFICATION_RULES.md
+├── EVIDENCE_CONTRACT.md
+├── DECISION_LOG.md
+├── SEED_POLICY.md
+├── FAILURE_POLICY.md
+├── STATISTICAL_ANALYSIS_PLAN.md
+├── VARIANCE_DECOMPOSITION.md
+├── OUTLIER_ANALYSIS.md
+└── FINAL_REPORT.md
+```
 
-**Execution:** `PROHIBITED`
+Atomic tag format:
 
-**H-003:** `PROPOSED`
+```text
+v0.6-gate2-protocol
+```
 
-**H-004:** `PROPOSED`
+The tag is created only after formal review and final reconciliation. This document itself does not create the tag.
+
+## 16. Current decision
+
+`G2-0 = IN PROGRESS`
+
+`Protocol Freeze = NO`
+
+`Execution Authorization = NO`
+
+`Gate-2 Evidence = NONE VERIFIED`
+
+`H-003 = PROPOSED`
+
+`H-004 = PROPOSED`

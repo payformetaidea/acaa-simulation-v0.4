@@ -2,28 +2,37 @@
 
 ## H-003 — Reproducibility Characterization
 
-**Statement:** The declared v0.5.0 method has measurable repeatability under fixed execution conditions, and the resulting variability can be quantitatively characterized.
+**Statement:** The frozen v0.5.0 method exhibits measurable repeatability under the declared execution conditions and its variability can be quantitatively characterized.
 
-**Pre-registration state:** `PROPOSED`
+**Pre-run state:** `PROPOSED`
 
-**Evidence required for promotion:** immutable execution evidence, preregistered metrics, independent validation, variance/uncertainty analysis, and Gate review.
+**Evidence required:** immutable execution evidence, preregistered metrics, independent validation, variance/uncertainty analysis, outlier review, and Gate review.
 
-**Scope:** only the frozen method and conditions declared by Gate 2.
+**Scope:** only the frozen method and declared Gate-2 conditions.
 
-## H-004 — Atomic Variability Characterization
+## H-004 — Atomic / Seed Variability Characterization
 
-**Statement:** Execution-level variability, including seed-associated variability, can be identified and quantitatively decomposed under the declared Gate-2 design.
+**Statement:** Execution-level variability, including seed-associated variability, can be identified and quantitatively characterized under the declared Gate-2 design.
 
-**Pre-registration state:** `PROPOSED`
+**Pre-run state:** `PROPOSED`
 
-**Evidence required for promotion:** frozen seed registry, repeated atomic executions, validated metric extraction, variance decomposition, outlier analysis, and independent review.
+**Ontology:** NON-DIRECTIONAL in Gate 2.
 
-**Scope:** only the tested seed and execution conditions.
+```text
+H0: σ²_B = 0
+H1: σ²_B ≠ 0
+```
 
-## Epistemic-state policy
+The 11×3 design has no perturbation arm and therefore no natural signed contrast. Directional falsification is deferred to a future experiment.
 
-`PROPOSED → SUPPORTED → DEMONSTRATED` is evidence-gated. No transition may be made solely because an experiment was planned, executed, or documented.
+**Evidence required:** frozen seed registry, repeated executions, validated metric extraction, variance decomposition, permutation analysis, outlier analysis, and independent review.
 
-`PROPOSED → REJECTED` is permitted when a preregistered falsification condition is satisfied and independently reviewed.
+## Epistemic state policy
 
-Historical Gate-1 states are unaffected by Gate 2.
+`PROPOSED → SUPPORTED → DEMONSTRATED` is evidence-gated.
+
+No transition occurs merely because an experiment was planned, executed, or documented.
+
+For H-004 in Gate 2, a non-significant permutation result yields `NOT DEMONSTRATED`; it does not falsify the hypothesis.
+
+Historical Gate-1 states are unaffected.

@@ -1,25 +1,68 @@
 # Gate 2 Acceptance Criteria
 
 **Status:** DRAFT / PRE-REGISTRATION
+**Binding only after protocol freeze**
 
-## Hard criteria — proposed, not yet frozen
+## AC-001 — Execution analyzability
 
-The following are candidate criteria and require formal review before becoming binding:
+`Success Rate = N_valid / N_planned`, with `N_planned = 33`.
 
-1. Execution success rate must meet the predeclared minimum required for analyzable data.
-2. Primary output-consistency variability must remain within the predeclared tolerance.
-3. Time-to-completion variability must remain within its predeclared tolerance.
-4. Required metrics must be computable for the required proportion of executions.
-5. Provenance and artifact completeness must pass without material breaks.
+| Tier | Valid runs | Rate | Interpretation |
+|---|---:|---:|---|
+| PASS | 32–33 | ≥ 0.9697 | analyzable execution set |
+| MARGINAL | 30–31 | 0.9091–0.9394 | review required; H-003 not demonstrated |
+| FAIL | ≤29 | < 0.9091 | insufficient analyzable execution set |
 
-## Statistical interpretation
+For hypothesis falsification, F-3.3 is triggered only when `Success Rate < 0.90`. The distinction between the hard Gate tier and the falsification threshold is intentional.
 
-A p-value is not itself an acceptance criterion for reproducibility. Statistical tests are used to characterize distributions, variance structure, and model suitability. Effect sizes, confidence intervals, and raw variability must be reported.
+## AC-002 — Total variability
 
-## Freeze requirement
+`CV_total ≤ 0.10` → PASS.
 
-Exact numerical thresholds must be finalized before execution. This document intentionally does not claim that any threshold has already been frozen.
+`CV_total > 0.10` → H-003 FALSIFIED under F-3.1, subject to evidence integrity and sensitivity rules.
 
-## Decision rule
+## AC-003 — Within-seed variability
 
-Gate 2 PASS requires every binding hard criterion to pass and the evidence chain to be independently validated. Soft/diagnostic criteria cannot compensate for a failed hard criterion.
+`CV_within ≤ 0.10` → PASS.
+
+`CV_within > 0.10` → H-003 FALSIFIED under F-3.2, subject to evidence integrity and sensitivity rules.
+
+## AC-004 — Between-seed characterization
+
+`CV_between` is reported as a descriptive estimand. `CV_between > 0.10` is a diagnostic threshold for material seed-associated variability; it is **not itself a falsification condition for H-004** under the non-directional Gate-2 ontology.
+
+H-004 is evaluated primarily through the preregistered variance decomposition and permutation test in the SAP.
+
+## AC-005 — Zero-count
+
+- `μ_s = 0` for one seed → `ZERO_COUNT`, review required.
+- `μ_s = 0` for ≥2 seeds → `ZERO_COUNT_SYSTEMATIC`, formal investigation.
+- Falsification is possible only if the frozen theoretical expectation explicitly requires non-zero output for every tested seed.
+- Otherwise the state is MARGINAL / NOT DEMONSTRATED.
+
+## AC-006 — Evidence integrity
+
+PASS requires complete and traceable E-001 through E-010 evidence appropriate to the execution stage, with no material provenance break.
+
+A material evidence-integrity failure means the affected hypothesis is `NOT EVALUATED`, not falsified.
+
+## AC-007 — Metric determinism
+
+M-P1 extraction must be deterministic and independently reproducible from the immutable manifest using `M-P1-v1.0`. Failure is an evidence/measurement-integrity problem and blocks evaluation.
+
+## AC-008 — Outlier robustness
+
+Primary analysis retains all observations. If a preregistered exclusion is permitted and sensitivity analysis changes the Gate conclusion, the conclusion is `SENSITIVE` and H-003/H-004 remain `NOT DEMONSTRATED` pending further review.
+
+## Gate decision rule
+
+Gate 2 PASS requires all hard criteria to pass, evidence integrity to pass, and independent validation to pass. MARGINAL or sensitive results cannot be silently converted to PASS. No aggregate score may compensate for a failed hard criterion.
+
+## Interpretation classes
+
+- `PASS` = criterion satisfied.
+- `MARGINAL` = intermediate state requiring Formal Protocol Review.
+- `FAIL` = hard criterion not satisfied.
+- `NOT EVALUATED` = evidence integrity or identifiability prevents valid judgment.
+- `NOT DEMONSTRATED` = evidence was evaluable but insufficient to support the hypothesis.
+- `FALSIFIED` = frozen hypothesis-specific condition actively contradicts the hypothesis.

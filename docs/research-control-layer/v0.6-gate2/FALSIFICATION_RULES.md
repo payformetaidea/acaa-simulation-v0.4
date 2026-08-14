@@ -2,20 +2,92 @@
 
 **Status:** DRAFT / PRE-REGISTRATION
 
-A falsification condition is evaluated against the frozen protocol, not against a threshold chosen after observing outcomes.
+## Governing distinction
 
-## Candidate conditions
+`FALSIFIED ≠ NOT DEMONSTRATED ≠ NOT EVALUATED`.
 
-1. Execution failure exceeds the predeclared analyzability limit.
-2. Primary metric variability exceeds its frozen tolerance.
-3. Evidence reveals structural rather than incidental outlier behavior that invalidates the declared model.
-4. Variance-model assumptions are materially violated and no preregistered robust alternative is applicable.
-5. A systematic toolchain/provenance defect compromises the affected evidence.
-6. Required metric extraction is non-deterministic or cannot be independently reproduced.
-7. A material protocol deviation occurs without a valid pre-execution amendment.
+- **FALSIFIED:** frozen evidence actively contradicts the hypothesis-specific rule.
+- **NOT DEMONSTRATED:** evidence is valid but insufficient to support the hypothesis.
+- **NOT EVALUATED:** evidence integrity, identifiability, or execution validity prevents a defensible judgment.
 
-## Policy
+## H-003 — Reproducibility Characterization
 
-Failure of one diagnostic test does not automatically falsify a hypothesis. Falsification requires application of the hypothesis-specific rule and documented reasoning.
+### F-3.1 — Excessive total variability
 
-Exact numerical thresholds must be frozen before execution.
+```text
+CV_total > 0.10
+```
+
+under the frozen SAP definition, with valid evidence and no material integrity break → `H-003 = FALSIFIED`.
+
+### F-3.2 — Excessive within-seed variability
+
+```text
+CV_within > 0.10
+```
+
+under the frozen SAP definition, with valid evidence → `H-003 = FALSIFIED`.
+
+### F-3.3 — Severe execution failure
+
+```text
+Success Rate < 0.90
+```
+
+→ `H-003 = FALSIFIED`, provided the failure evidence is attributable to the declared execution process rather than an external infrastructure event that invalidates the experiment. Infrastructure invalidation instead yields `NOT EVALUATED` / protocol review.
+
+### F-3.4 — Systematic zero-count
+
+`≥2` seeds with `μ_s = 0` → `ZERO_COUNT_SYSTEMATIC`.
+
+Falsification occurs only if the frozen theoretical expectation explicitly requires non-zero output for every seed. Without such a preregistered expectation → `NOT DEMONSTRATED`.
+
+### F-3.5 — Structural/systematic outlier pattern
+
+Falsification requires all of:
+
+1. a pre-specified structural/systematic pattern under `OUTLIER_ANALYSIS.md`;
+2. threshold met: `≥3 seeds` OR `≥30% of runs`;
+3. attribution to the method rather than infrastructure;
+4. sensitivity analysis materially changes the Gate conclusion.
+
+If infrastructure-attributable → failure/provenance pathway, not falsification.
+If sensitivity is robust → report as a methodological note; do not falsify H-003.
+
+## H-004 — Atomic / Seed Variability Characterization
+
+Gate 2 H-004 is **NON-DIRECTIONAL**:
+
+```text
+H0: σ²_B = 0
+H1: σ²_B ≠ 0
+```
+
+### F-4.1
+
+Removed. Non-identifiability or model failure is `NOT DEMONSTRATED` or `NOT EVALUATED`, depending on evidence integrity. It is not falsification.
+
+### F-4.2
+
+`CV_between > 0.10` is a **diagnostic materiality threshold**, not a falsification rule. A high between-seed CV is evidence of larger seed-associated differences and therefore cannot logically falsify the non-directional H-004 characterization hypothesis.
+
+### F-4.3
+
+Directional falsification is **DEFERRED / NOT APPLICABLE in Gate 2**. A future perturbation-arm experiment may preregister a signed contrast such as:
+
+```text
+Δ = variability(perturbed) − variability(baseline)
+```
+
+with a pre-registered minimum effect. Such a directional rule does not exist in the current 11×3 design.
+
+## H-004 decision rule in Gate 2
+
+- Significant/non-zero variance characterization with valid evidence → supports H-004, subject to all Gate criteria.
+- Non-significant permutation result → `NOT DEMONSTRATED`.
+- Model non-identifiability → `NOT DEMONSTRATED` or `NOT EVALUATED` as specified above.
+- Gate 2 contains no active directional falsification pathway for H-004.
+
+## Evidence-integrity override
+
+If raw evidence, provenance, metric extraction, or protocol identity is materially compromised, no hypothesis is falsified on that basis. The appropriate state is `NOT EVALUATED` pending reconciliation.
