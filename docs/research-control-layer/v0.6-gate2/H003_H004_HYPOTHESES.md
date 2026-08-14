@@ -16,14 +16,14 @@
 
 **Pre-run state:** `PROPOSED`
 
-**Ontology:** NON-DIRECTIONAL in Gate 2.
+**Ontology:** Direction-neutral with respect to the direction of seed effects. The variance-component alternative is one-sided at the boundary zero.
 
 ```text
 H0: σ²_B = 0
-H1: σ²_B ≠ 0
+H1: σ²_B > 0
 ```
 
-The 11×3 design has no perturbation arm and therefore no natural signed contrast. Directional falsification is deferred to a future experiment.
+The 11×3 design has no perturbation arm and therefore no natural signed contrast. A future perturbation-arm experiment may address directional/signed effects; that is outside the present Gate-2 hypothesis.
 
 **Evidence required:** frozen seed registry, repeated executions, validated metric extraction, variance decomposition, permutation analysis, outlier analysis, and independent review.
 
@@ -33,6 +33,6 @@ The 11×3 design has no perturbation arm and therefore no natural signed contras
 
 No transition occurs merely because an experiment was planned, executed, or documented.
 
-For H-004 in Gate 2, a non-significant permutation result yields `NOT DEMONSTRATED`; it does not falsify the hypothesis.
+For H-004 in Gate 2, a non-significant permutation result yields `NOT DEMONSTRATED`; it does not establish `σ²_B = 0`.
 
 Historical Gate-1 states are unaffected.
