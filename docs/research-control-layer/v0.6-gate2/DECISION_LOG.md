@@ -14,6 +14,9 @@
 | D2-010 | G2-0.6 outlier policy uses detection/retention/exclusion separation | ACTIVE | Outlier Policy |
 | D2-011 | F-3.5 requires method attribution + threshold + sensitivity impact | ACTIVE | Falsification Rules |
 | D2-012 | Atomic freeze package requires cross-document consistency review | ACTIVE | G2-0.7 |
+| D2-013 | R4.6 H-004 statistical alignment passed; `H0: σ²_B = 0`, `H1: σ²_B > 0`, non-negative variance estimator, `B=9999`, `α=0.05`, and +1 permutation correction are binding | CLOSED | R4.6 cross-document invariant review |
+| D2-014 | R4 prospective design review closed; retain 11 seeds × 3 repeats as bounded characterization with explicit limitations | CLOSED | R4.1–R4.6 review |
+| D2-015 | Seed-generation rule is deterministic, prospective, and frozen before value generation: fixed reference seed `1`; ten non-reference values derived by SHA-256 domain-separated generation with deterministic rejection of `0`, `1`, and duplicates | ACTIVE / PRE-REGISTRATION | R4 closure / Seed Policy |
 
 ## Amendment rule
 
@@ -21,7 +24,9 @@ Any binding change after freeze requires a new protocol version, explicit ration
 
 ## Current state
 
-`G2-0 / IN PROGRESS / EXECUTION PROHIBITED`
+`G2-0 / SEED GENERATION RULE DEFINED / EXECUTION PROHIBITED`
+
+`R4 = CLOSED`
 
 `Protocol Freeze = NO`
 
