@@ -33,6 +33,24 @@ For hypothesis falsification, F-3.3 is triggered only when `Success Rate < 0.90`
 
 H-004 is evaluated primarily through the preregistered variance decomposition and permutation test in the SAP.
 
+### H-004 permutation test — frozen parameters
+
+```text
+H0: σ²_B = 0
+H1: σ²_B ≠ 0
+T = MS_B / MS_W
+B = 9999 permutations
+α = 0.05 (frozen)
+p = (count(T_perm ≥ T_obs) + 1) / (B + 1)
+```
+
+Decision for the hypothesis test:
+
+- `p < 0.05` → statistically significant evidence against H0; H-004 is **DEMONSTRATED**, subject to all other Gate conditions.
+- `p ≥ 0.05` → H-004 is **NOT DEMONSTRATED**; this is never treated as falsification.
+
+The Gate-2 H-004 ontology is non-directional. Directional falsification is deferred to a future perturbation-arm experiment.
+
 ## AC-005 — Zero-count
 
 - `μ_s = 0` for one seed → `ZERO_COUNT`, review required.
@@ -56,13 +74,25 @@ Primary analysis retains all observations. If a preregistered exclusion is permi
 
 ## Gate decision rule
 
-Gate 2 PASS requires all hard criteria to pass, evidence integrity to pass, and independent validation to pass. MARGINAL or sensitive results cannot be silently converted to PASS. No aggregate score may compensate for a failed hard criterion.
+Gate 2 PASS requires all hard acceptance criteria to pass, evidence integrity to pass, independent validation to pass, and both H-003 and H-004 to be evaluable.
+
+For the current Gate-2 characterization:
+
+- `H-003 = DEMONSTRATED` or `FALSIFIED` → H-003 is evaluable; Gate decision follows the frozen hypothesis-specific rules.
+- `H-003 = NOT DEMONSTRATED` → H-003 remains evaluable but unsupported; Gate 2 cannot claim H-003 demonstration.
+- `H-004 = DEMONSTRATED` → H-004 characterization requirement is satisfied, subject to all other hard criteria.
+- `H-004 = NOT DEMONSTRATED` → Gate-2 characterization is incomplete; Gate 2 = `NOT PASS`. H-003 may still be evaluated independently and must retain its own status.
+- `H-004 = NOT EVALUATED` → Gate 2 = `NOT PASS` because the required characterization cannot be completed.
+- `H-004 = FALSIFIED` → applicable only if a future frozen Gate-2 rule explicitly permits a falsification condition; under the current non-directional ontology no Gate-2 falsification rule exists.
+
+MARGINAL or sensitive results cannot be silently converted to PASS. No aggregate score may compensate for a failed hard criterion.
 
 ## Interpretation classes
 
 - `PASS` = criterion satisfied.
 - `MARGINAL` = intermediate state requiring Formal Protocol Review.
 - `FAIL` = hard criterion not satisfied.
+- `NOT PASS` = Gate-level closure condition not satisfied.
 - `NOT EVALUATED` = evidence integrity or identifiability prevents valid judgment.
 - `NOT DEMONSTRATED` = evidence was evaluable but insufficient to support the hypothesis.
 - `FALSIFIED` = frozen hypothesis-specific condition actively contradicts the hypothesis.
