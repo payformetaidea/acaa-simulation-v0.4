@@ -1,0 +1,12 @@
+# v0.6-D1 Independent Replication — dependency manifest
+#
+# The frozen O1 procedure inspected at v0.5.0 imports Python standard-library
+# modules only. No third-party Python package is declared by the O1 execution
+# path. Python 3.10 is the reference runtime declared by the repository CI.
+#
+# This file is intentionally empty of pip-installable packages. If an
+# independent operator discovers a non-standard dependency, the run MUST be
+# recorded as an H-002 documentation observation (F-R3) before remediation.
+
+# Python runtime: 3.10
+# External pip dependencies: NONE DECLARED
