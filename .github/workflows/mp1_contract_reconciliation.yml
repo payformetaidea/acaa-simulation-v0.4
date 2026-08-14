@@ -7,6 +7,12 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+env:
+  O2_ARTIFACT_ID: "9147901382"
+  O2_ARTIFACT_PATH: "evidence/o2/9147901382.json"
+  O2_EXPECTED_RECORD_COUNT: "1936"
+  O2_ARTIFACT_SHA256: ${{ vars.O2_ARTIFACT_SHA256 }}
+
 permissions:
   contents: read
 
@@ -22,5 +28,18 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Run contract reconciliation tests
+      - name: Synthetic contract tests
         run: python3 -m unittest -v tests/test_mp1_contract_reconciliation.py
+
+      - name: Require canonical artifact and SHA configuration
+        run: |
+          test -n "$O2_ARTIFACT_SHA256"
+          test -f "$O2_ARTIFACT_PATH"
+
+      - name: Verify retained O2 artifact independently
+        run: |
+          python3 scripts/verify_o2_artifact.py \
+            "$O2_ARTIFACT_PATH" \
+            --artifact-id "$O2_ARTIFACT_ID" \
+            --expected-sha256 "$O2_ARTIFACT_SHA256" \
+            --expected-record-count "$O2_EXPECTED_RECORD_COUNT"
