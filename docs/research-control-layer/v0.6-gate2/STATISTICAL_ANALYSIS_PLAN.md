@@ -29,7 +29,7 @@ MS_B = (n/(S−1)) Σ (ȳ_s − ȳ)²              df_B = 10
 σ̂²_total = σ̂²_W + σ̂²_B,reported
 ```
 
-Both the raw signed estimator and the reported non-negative estimator are binding outputs. A negative raw estimate means `MS_B < MS_W`; it is not proof that the true between-seed variance is zero.
+Both the raw signed estimator and the reported non-negative estimator are binding outputs. A negative raw estimate means `MS_B < MS_W`; it is not proof that the true between-seed variance is zero. The reported component obeys the parameter constraint `σ²_B ≥ 0`.
 
 ## 3. ICC
 
@@ -61,31 +61,37 @@ For ICC, report the exact balanced one-way random-effects F-based interval where
 
 Because `n=3` per seed, seed-level SD/CV estimates have low precision and potentially wide uncertainty. No population-level generalization beyond the declared seed set is allowed.
 
-## 6. H-004 permutation test
+## 6. H-004 variance-component permutation test
 
-Gate 2 H-004 is **non-directional**:
+H-004 is direction-neutral with respect to the direction of seed effects. Its variance-component alternative is one-sided at the boundary zero:
 
 ```text
 H0: σ²_B = 0
-H1: σ²_B ≠ 0
+H1: σ²_B > 0
 ```
 
 Test statistic:
 
 ```text
-T = MS_B / MS_W
+T = σ̂²_B,reported / σ̂²_W
+  = max(0, (MS_B − MS_W)/n) / MS_W
+  = max(0, F − 1) / 3
+
+where F = MS_B / MS_W and n = 3.
 ```
 
 Permutation procedure:
 
 1. preserve the 33 observed M-P1 values;
-2. permute seed labels while preserving 11 labels × 3 observations per label;
-3. recompute `MS_B`, `MS_W`, and `T` for each permutation;
+2. permute the observed values into 11 balanced seed groups of 3, preserving group size;
+3. recompute `MS_B`, `MS_W`, `σ̂²_B,reported`, and `T` for each permutation using the same non-negativity constraint;
 4. use `B=9999` permutations;
 5. compute `p = (count(T_perm >= T_obs)+1)/(B+1)`;
-6. compare with the α frozen in `ACCEPTANCE_CRITERIA.md`.
+6. compare with the frozen `α = 0.05` in `ACCEPTANCE_CRITERIA.md`.
 
-A non-significant result means `H-004 = NOT DEMONSTRATED`, never falsified. Gate 2 contains no directional falsification test because the current design has no natural signed contrast.
+A result with `p < 0.05` supports `σ²_B > 0` under the declared protocol and may yield `H-004 = DEMONSTRATED`, subject to all Gate criteria. A result with `p ≥ 0.05` yields `H-004 = NOT DEMONSTRATED`; it does not establish `σ²_B = 0`.
+
+No signed-effect falsification rule is active in the current 11×3 design. A future perturbation-arm experiment may define a separate signed contrast, but that is outside this protocol.
 
 ## 7. Three-layer separation
 
@@ -111,3 +117,5 @@ Normality and variance diagnostics are descriptive checks. Failure of a diagnost
 - `S=11` limits between-seed inference.
 - `N=33` is exploratory characterization, not confirmatory population inference.
 - Results apply only to the frozen v0.5.0 method and declared execution conditions.
+- Evidence of `σ²_B > 0` does not establish causality, universal seed effects, or generalization beyond the registered seed set.
+- Failure to demonstrate `σ²_B > 0` does not establish `σ²_B = 0`.
