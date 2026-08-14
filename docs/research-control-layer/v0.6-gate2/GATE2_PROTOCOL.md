@@ -43,8 +43,10 @@ The current design has no perturbation arm and therefore no preregistered signed
 
 ## 4. Experimental design
 
-- 11 seeds: 1 fixed reference + 10 pre-registered non-reference seeds.
-- 3 repeats per seed.
+- 11 seed indices: `0` = fixed reference-seed position; `1..10` = non-reference positions.
+- Seed values are generated deterministically under the canonical Rule B in `SEED_POLICY.md`.
+- Candidate output values `0` and `1` and duplicates are rejected.
+- 3 repeats per registered seed.
 - Planned total: 33 atomic executions.
 - Atomic unit: one complete execution under one frozen seed/configuration.
 
@@ -171,6 +173,10 @@ The tag is created only after formal review and final reconciliation. This docum
 ## 16. Current decision
 
 `G2-0 = IN PROGRESS`
+
+`R4 = CLOSED`
+
+`Canonical Seed Rule = RULE B`
 
 `Protocol Freeze = NO`
 
