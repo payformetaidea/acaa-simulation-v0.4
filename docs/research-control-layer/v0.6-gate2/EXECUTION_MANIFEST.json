@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "status": "PRE_EXECUTION_ONLY",
+  "protocol_tag": "v0.6-gate2-protocol",
+  "frozen_commit": "e5fde0b298e5bff9fd00196bd718a62934f09060",
+  "seed_registry": "docs/research-control-layer/v0.6-gate2/SEED_REGISTRY.json",
+  "registry_sha256": "4a856e4777a64d4e59ddc8fab4e66967e7232fd4e9132aff7b916d31a912a18e",
+  "seed_count": 11,
+  "repeats_per_seed": 3,
+  "planned_executions": 33,
+  "execution_order": "seed index ascending, repeat ascending",
+  "authorization_required": true,
+  "evidence_generation_allowed": false,
+  "result_claims_allowed": false,
+  "hypothesis_promotion_allowed": false
+}
