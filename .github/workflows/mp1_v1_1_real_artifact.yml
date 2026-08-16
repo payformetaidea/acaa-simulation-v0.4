@@ -17,8 +17,6 @@ env:
 permissions:
   contents: read
 
-auto_cancel: false
-
 jobs:
   real-artifact-gate:
     runs-on: ubuntu-latest
