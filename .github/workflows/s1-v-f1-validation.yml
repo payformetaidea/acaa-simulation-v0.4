@@ -1,0 +1,63 @@
+name: S1-V F1 Fixture Validation
+
+on:
+  push:
+    branches:
+      - research/mp1-v1.1-s1v-f1-fixture-reconciliation
+  workflow_dispatch:
+
+jobs:
+  f1:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout F1 branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify validator baseline is unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          EXPECTED="$(git show d1cef3768ccaa39525a0c23e1a9b94c3528a8995:infrastructure/schema-conformance/validate_s1.py | sha256sum | awk '{print $1}')"
+          ACTUAL="$(sha256sum infrastructure/schema-conformance/validate_s1.py | awk '{print $1}')"
+          printf 'expected_validator_sha256=%s\nactual_validator_sha256=%s\n' "$EXPECTED" "$ACTUAL"
+          test "$EXPECTED" = "$ACTUAL"
+
+      - name: Capture runtime
+        run: |
+          python --version
+          python -c 'import jsonschema; print(jsonschema.__version__)'
+
+      - name: Install validator dependency
+        run: python -m pip install 'jsonschema==4.23.0'
+
+      - name: Run validator twice and preserve failure evidence
+        shell: bash
+        run: |
+          set +e
+          python infrastructure/schema-conformance/validate_s1.py > f1-run-1.json 2> f1-run-1.stderr
+          rc1=$?
+          python infrastructure/schema-conformance/validate_s1.py > f1-run-2.json 2> f1-run-2.stderr
+          rc2=$?
+          set -e
+          printf '%s\n' "$rc1" > f1-rc1.txt
+          printf '%s\n' "$rc2" > f1-rc2.txt
+          cmp -s f1-run-1.json f1-run-2.json
+          cmp -s f1-run-1.stderr f1-run-2.stderr
+          printf 'rc1=%s\nrc2=%s\n' "$rc1" "$rc2"
+          test "$rc1" -eq 0 && test "$rc2" -eq 0
+
+      - name: Upload F1 evidence even on validator failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: s1-v-f1-evidence-${{ github.sha }}-${{ github.run_id }}
+          path: |
+            f1-run-1.json
+            f1-run-2.json
+            f1-run-1.stderr
+            f1-run-2.stderr
+            f1-rc1.txt
+            f1-rc2.txt
+          if-no-files-found: error
