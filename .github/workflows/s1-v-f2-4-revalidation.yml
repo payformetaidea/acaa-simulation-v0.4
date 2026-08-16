@@ -1,0 +1,95 @@
+name: S1-V F2.4 Revalidation
+on:
+  push:
+    branches:
+      - research/mp1-v1.1-s1v-f2.4-format-contract-reconciliation
+  workflow_dispatch:
+permissions:
+  contents: read
+env:
+  TARGET_COMMIT: d1cef3768ccaa39525a0c23e1a9b94c3528a8995
+jobs:
+  s1-v-revalidation:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12.3'
+      - name: Verify frozen validator and schema identity
+        run: |
+          set -euo pipefail
+          test "$(git show "$TARGET_COMMIT:infrastructure/schema-conformance/validate_s1.py" | sha256sum | cut -d' ' -f1)" = "$(sha256sum infrastructure/schema-conformance/validate_s1.py | cut -d' ' -f1)"
+          test "$(git show "$TARGET_COMMIT:infrastructure/schemas/invariant-registry.schema.json" | sha256sum | cut -d' ' -f1)" = "$(sha256sum infrastructure/schemas/invariant-registry.schema.json | cut -d' ' -f1)"
+          git rev-parse HEAD > head.txt
+          git rev-parse "$TARGET_COMMIT" > target.txt
+          sha256sum infrastructure/schema-conformance/validate_s1.py infrastructure/schemas/invariant-registry.schema.json > frozen-file-sha256.txt
+      - name: Install pinned dependency
+        run: python -m pip install --disable-pip-version-check 'jsonschema==4.23.0'
+      - name: Run validator twice
+        shell: bash
+        run: |
+          set +e
+          python infrastructure/schema-conformance/validate_s1.py > run-1.json 2> run-1.stderr
+          rc1=$?
+          python infrastructure/schema-conformance/validate_s1.py > run-2.json 2> run-2.stderr
+          rc2=$?
+          set -e
+          echo "$rc1" > run-1.exitcode
+          echo "$rc2" > run-2.exitcode
+      - name: Build deterministic evidence
+        if: always()
+        run: |
+          python - <<'PY'
+          import hashlib, json, pathlib
+          def sha(p): return hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()
+          a=json.loads(pathlib.Path('run-1.json').read_text())
+          b=json.loads(pathlib.Path('run-2.json').read_text())
+          m={
+            'evidence_type':'S1-V',
+            'target_validator_commit':pathlib.Path('target.txt').read_text().strip(),
+            'execution_head':pathlib.Path('head.txt').read_text().strip(),
+            'validator_sha256':sha('infrastructure/schema-conformance/validate_s1.py'),
+            'schema_sha256':sha('infrastructure/schemas/invariant-registry.schema.json'),
+            'run_1_exit_code':int(pathlib.Path('run-1.exitcode').read_text()),
+            'run_2_exit_code':int(pathlib.Path('run-2.exitcode').read_text()),
+            'run_1_verdict':a.get('verdict'),
+            'run_2_verdict':b.get('verdict'),
+            'byte_identical':pathlib.Path('run-1.json').read_bytes()==pathlib.Path('run-2.json').read_bytes(),
+            'structured_identical':a==b,
+            'run_1_output_sha256':sha('run-1.json'),
+            'run_2_output_sha256':sha('run-2.json')
+          }
+          pathlib.Path('s1-v-revalidation-manifest.json').write_text(json.dumps(m,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(m,indent=2,sort_keys=True))
+          PY
+      - name: Upload S1-V evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: s1-v-f2.4-revalidation-${{ github.sha }}
+          path: |
+            head.txt
+            target.txt
+            frozen-file-sha256.txt
+            run-1.json
+            run-2.json
+            run-1.stderr
+            run-2.stderr
+            run-1.exitcode
+            run-2.exitcode
+            s1-v-revalidation-manifest.json
+          if-no-files-found: error
+      - name: Enforce S1-V PASS
+        if: always()
+        run: |
+          test "$(cat run-1.exitcode)" = 0
+          test "$(cat run-2.exitcode)" = 0
+          python - <<'PY'
+          import json
+          assert json.load(open('run-1.json'))['verdict'] == 'PASS'
+          assert json.load(open('run-2.json'))['verdict'] == 'PASS'
+          assert json.load(open('run-1.json')) == json.load(open('run-2.json'))
+          PY
