@@ -1,0 +1,107 @@
+name: S1-V Controlled Evidence Execution
+
+on:
+  push:
+    branches:
+      - research/mp1-v1.1-s1v-execution
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TARGET_COMMIT: d1cef3768ccaa39525a0c23e1a9b94c3528a8995
+
+jobs:
+  s1-v:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout controlled target commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TARGET_COMMIT }}
+          fetch-depth: 0
+
+      - name: Verify provenance
+        run: |
+          set -euo pipefail
+          ACTUAL="$(git rev-parse HEAD)"
+          test "$ACTUAL" = "$TARGET_COMMIT"
+          python3 --version | tee python-version.txt
+          python3 -m pip install --disable-pip-version-check --no-input 'jsonschema==4.23.0'
+          python3 - <<'PY' | tee runtime.txt
+          import importlib.metadata, sys
+          from jsonschema import FormatChecker
+          print(f"python={sys.version.split()[0]}")
+          print(f"jsonschema={importlib.metadata.version('jsonschema')}")
+          print("format_checker=ENABLED")
+          print(f"format_checker_class={FormatChecker.__name__}")
+          PY
+          printf '%s\n' "$ACTUAL" > commit-sha.txt
+
+      - name: Run S1-V twice
+        run: |
+          set +e
+          python3 infrastructure/schema-conformance/validate_s1.py > run-1.json
+          rc1=$?
+          python3 infrastructure/schema-conformance/validate_s1.py > run-2.json
+          rc2=$?
+          set -e
+          printf '%s\n' "$rc1" > run-1.exitcode
+          printf '%s\n' "$rc2" > run-2.exitcode
+          test "$rc1" -eq 0
+          test "$rc2" -eq 0
+
+      - name: Verify deterministic outputs
+        run: |
+          set -euo pipefail
+          sha256sum run-1.json run-2.json | tee output-sha256.txt
+          cmp -s run-1.json run-2.json
+          printf '%s\n' 'byte_identical=true' > determinism.txt
+          python3 - <<'PY'
+          import json
+          a=json.load(open('run-1.json'))
+          b=json.load(open('run-2.json'))
+          assert a == b
+          assert a.get('verdict') == 'PASS'
+          print('structured_result_identical=true')
+          print('verdict=PASS')
+          PY
+
+      - name: Build evidence manifest
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, pathlib
+          def sha(p):
+              h=hashlib.sha256(); h.update(pathlib.Path(p).read_bytes()); return h.hexdigest()
+          manifest={
+            'evidence_type':'S1-V',
+            'target_commit':open('commit-sha.txt').read().strip(),
+            'validator':'infrastructure/schema-conformance/validate_s1.py',
+            'runs':2,
+            'exit_codes':[int(open('run-1.exitcode').read()),int(open('run-2.exitcode').read())],
+            'validator_output_sha256':[sha('run-1.json'),sha('run-2.json')],
+            'deterministic_byte_identical':True,
+            'verdict':json.load(open('run-1.json'))['verdict'],
+            'runtime':open('runtime.txt').read().strip().splitlines(),
+          }
+          pathlib.Path('s1-v-evidence-manifest.json').write_text(json.dumps(manifest,indent=2,sort_keys=True)+'\n')
+          PY
+
+      - name: Upload S1-V evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: s1-v-evidence-${{ env.TARGET_COMMIT }}
+          path: |
+            commit-sha.txt
+            python-version.txt
+            runtime.txt
+            run-1.json
+            run-2.json
+            run-1.exitcode
+            run-2.exitcode
+            output-sha256.txt
+            determinism.txt
+            s1-v-evidence-manifest.json
+          if-no-files-found: error
