@@ -1,0 +1,1 @@
+{"schema_version":"1.0","contract_id":"M-P1","invariants":[{"id":"MP1-C-001","statement":"valid","type":"structural","status":"active","introduced_in":{"contract_id":"M-P1","contract_version":"1.1.0"},"normative_source":{"document":"doc.md","section":"1"},"conformance_vectors":["MP1-V-001"]}]}
