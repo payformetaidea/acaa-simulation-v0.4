@@ -27,32 +27,26 @@ jobs:
           test "$ACTUAL" = "$CURRENT"
           echo "validator_sha256=$CURRENT"
 
-      - name: Capture exact runtime
-        shell: bash
-        run: |
-          python --version
-          python -c 'import jsonschema,sys; print("jsonschema=" + jsonschema.__version__); print("python=" + sys.version)'
-
-      - name: Install dependency
+      - name: Install exact dependency
         run: python -m pip install --disable-pip-version-check 'jsonschema==4.23.0'
 
-      - name: Run layered FormatChecker probe
+      - name: Run F2.2 Runtime Provenance Protocol
         shell: bash
         run: |
           set -uo pipefail
-          python infrastructure/schema-conformance/investigate_formatchecker.py > f2-report.txt 2> f2-report.stderr
+          python infrastructure/schema-conformance/investigate_formatchecker_provenance.py > f2.2-report.txt 2> f2.2-report.stderr
           rc=$?
-          echo "$rc" > f2-exit-code.txt
+          echo "$rc" > f2.2-exit-code.txt
           exit "$rc"
 
-      - name: Upload F2 investigation evidence
+      - name: Upload F2.2 investigation evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: f2-formatchecker-evidence-${{ github.sha }}-${{ github.run_id }}
+          name: f2.2-runtime-provenance-${{ github.sha }}-${{ github.run_id }}
           path: |
-            f2-report.txt
-            f2-report.stderr
-            f2-exit-code.txt
+            f2.2-report.txt
+            f2.2-report.stderr
+            f2.2-exit-code.txt
           if-no-files-found: error
           retention-days: 90
