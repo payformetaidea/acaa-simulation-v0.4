@@ -13,6 +13,7 @@ env:
   O2_EXPECTED_RECORD_COUNT: "1936"
   O2_ARCHIVE_SHA256: "8d923bb951e60764ad9604e708c03bafdc30053da9b766c5ede6ceea7a929d81"
   O2_JSON_SHA256: "7649e45f6484dd0a6121fe5cbe995c4d3a195a6a6f4259462af8e1e6b02d10c9"
+  EXPECTED_MP1: "1936"
 
 permissions:
   contents: read
@@ -28,6 +29,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
       - name: Download retained O2 artifact
         env:
@@ -62,3 +68,19 @@ jobs:
             --artifact-id "${O2_ARTIFACT_ID}" \
             --expected-sha256 "${O2_JSON_SHA256}" \
             --expected-record-count "${O2_EXPECTED_RECORD_COUNT}"
+
+      - name: Replay M-P1-v1.1 independently in Python and JavaScript
+        run: |
+          python3 scripts/gate2_mp1_v1_1_independent_verifier_py.py \
+            < /tmp/o2_extract/o2_identity_evidence.json \
+            > /tmp/mp1_python.json
+          node scripts/gate2_mp1_v1_1_independent_verifier_js.js \
+            < /tmp/o2_extract/o2_identity_evidence.json \
+            > /tmp/mp1_javascript.json
+          cat /tmp/mp1_python.json
+          cat /tmp/mp1_javascript.json
+          test "$(python3 -c 'import json; print(json.load(open("/tmp/mp1_python.json"))["status"])')" = "VALID"
+          test "$(python3 -c 'import json; print(json.load(open("/tmp/mp1_javascript.json"))["status"])')" = "VALID"
+          test "$(python3 -c 'import json; print(json.load(open("/tmp/mp1_python.json"))["m_p1"])')" = "${EXPECTED_MP1}"
+          test "$(python3 -c 'import json; print(json.load(open("/tmp/mp1_javascript.json"))["m_p1"])')" = "${EXPECTED_MP1}"
+          cmp --silent /tmp/mp1_python.json /tmp/mp1_javascript.json
