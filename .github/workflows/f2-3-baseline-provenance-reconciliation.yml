@@ -24,23 +24,23 @@ jobs:
           git cat-file -e "$TARGET^{commit}"
           test "$(git rev-parse "$TARGET^{commit}")" = "$TARGET"
 
-      - name: Run F2.3 provenance reconciliation
+      - name: Run F2.3-R1 provenance reconciliation
         shell: bash
         run: |
           set -uo pipefail
-          python infrastructure/schema-conformance/reconcile_baseline_provenance.py > f2.3-report.json 2> f2.3-report.stderr
+          python infrastructure/schema-conformance/reconcile_baseline_provenance_v2.py > f2.3-r1-report.json 2> f2.3-r1-report.stderr
           rc=$?
-          echo "$rc" > f2.3-exit-code.txt
+          echo "$rc" > f2.3-r1-exit-code.txt
           exit "$rc"
 
-      - name: Upload F2.3 evidence
+      - name: Upload F2.3-R1 evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: f2.3-baseline-provenance-${{ github.sha }}-${{ github.run_id }}
+          name: f2.3-r1-baseline-provenance-${{ github.sha }}-${{ github.run_id }}
           path: |
-            f2.3-report.json
-            f2.3-report.stderr
-            f2.3-exit-code.txt
+            f2.3-r1-report.json
+            f2.3-r1-report.stderr
+            f2.3-r1-exit-code.txt
           if-no-files-found: error
           retention-days: 90
