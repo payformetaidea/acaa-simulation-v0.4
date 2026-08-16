@@ -10,7 +10,7 @@
       "status": "active",
       "introduced_in": {"contract_id": "OTHER-CONTRACT", "contract_version": "1.1.0"},
       "normative_source": {"document": "doc.md", "section": "1"},
-      "conformance_vectors": ["MP1-V-001"]
+      "conformance_vectors": ["MP1-V-002"]
     }
   ]
 }
