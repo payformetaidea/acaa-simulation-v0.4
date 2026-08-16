@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """S1-V evidence-bearing validation for the invariant registry contract."""
-import glob
 import hashlib
 import importlib.metadata
 import json
@@ -12,6 +11,13 @@ BASE = Path(__file__).resolve().parent.parent
 SCHEMA = BASE / "schemas" / "invariant-registry.schema.json"
 VALID = BASE / "schema-conformance" / "valid" / "invariant-registry.valid.json"
 INVALID = BASE / "schema-conformance" / "invalid"
+
+# These fixtures are intentionally structurally valid. Their expected failure
+# belongs to Layer 2, not JSON Schema Layer 1.
+SEMANTIC_NEGATIVE_FIXTURES = {
+    "invariant-registry.duplicate-id.json": "REG-C-001",
+    "invariant-registry.cross-field-mismatch.json": "REG-C-002",
+}
 
 
 def sha256(path):
@@ -63,6 +69,8 @@ def main():
         "schema": str(SCHEMA),
         "python_version": sys.version.split()[0],
         "jsonschema_version": importlib.metadata.version("jsonschema"),
+        "format_checker": "ENABLED",
+        "semantic_negative_fixtures": SEMANTIC_NEGATIVE_FIXTURES,
         "files": {},
         "schema_tests": [],
         "semantic_tests": [],
@@ -72,27 +80,86 @@ def main():
     for p in paths:
         report["files"][str(p.relative_to(BASE.parent))] = sha256(p)
 
+    # Layer 1: valid fixture must pass structural validation.
     valid = schema_check(validator, VALID)
-    report["schema_tests"].append({"fixture": "valid", "expected": "PASS", "result": "PASS"})
+    report["schema_tests"].append({
+        "fixture": "valid",
+        "expected": "PASS",
+        "result": "PASS",
+    })
+
+    # Layer 1: structurally invalid fixtures must fail schema validation.
+    # Semantic-negative fixtures are excluded from this expectation because
+    # they are deliberately valid under JSON Schema and are tested in Layer 2.
     for p in sorted(INVALID.glob("invariant-registry.*.json")):
+        name = p.name
         with p.open() as f:
             data = json.load(f)
-        name = p.name
+
+        if name in SEMANTIC_NEGATIVE_FIXTURES:
+            try:
+                validator.validate(data)
+                report["schema_tests"].append({
+                    "fixture": name,
+                    "class": "semantic-negative",
+                    "expected": "PASS",
+                    "result": "PASS",
+                    "message": "Structurally valid; semantic rejection belongs to Layer 2",
+                })
+            except ValidationError as e:
+                report["schema_tests"].append({
+                    "fixture": name,
+                    "class": "semantic-negative",
+                    "expected": "PASS",
+                    "result": "FAIL",
+                    "message": e.message,
+                })
+            continue
+
         try:
             validator.validate(data)
-            report["schema_tests"].append({"fixture": name, "expected": "FAIL", "result": "PASS"})
+            report["schema_tests"].append({
+                "fixture": name,
+                "class": "structural-negative",
+                "expected": "FAIL",
+                "result": "PASS",
+                "message": "Unexpectedly accepted by JSON Schema",
+            })
         except ValidationError as e:
-            report["schema_tests"].append({"fixture": name, "expected": "FAIL", "result": "FAIL", "message": e.message})
+            report["schema_tests"].append({
+                "fixture": name,
+                "class": "structural-negative",
+                "expected": "FAIL",
+                "result": "FAIL",
+                "message": e.message,
+            })
 
-    # Semantic tests are explicitly separated because duplicate IDs and cross-field
-    # consistency are registry invariants, not JSON Schema constraints.
-    for inv_name, data in [("valid", valid)]:
+    # Layer 2: valid fixture must satisfy all registry invariants.
+    errors = semantic_errors(valid)
+    report["semantic_tests"].append({
+        "fixture": "valid",
+        "expected": "PASS",
+        "result": "PASS" if not errors else "FAIL",
+        "errors": errors,
+    })
+
+    # Layer 2: semantic-negative fixtures must trigger their declared invariant.
+    for filename, invariant in SEMANTIC_NEGATIVE_FIXTURES.items():
+        p = INVALID / filename
+        data = json.loads(p.read_text())
         errors = semantic_errors(data)
-        report["semantic_tests"].append({"fixture": inv_name, "expected": "PASS", "result": "PASS" if not errors else "FAIL", "errors": errors})
+        hit = any(code == invariant for code, _ in errors)
+        report["semantic_tests"].append({
+            "fixture": filename,
+            "invariant": invariant,
+            "expected": "FAIL",
+            "result": "FAIL" if hit else "PASS",
+            "errors": errors,
+        })
 
+    # Lifecycle negatives are independently checked semantically as well,
+    # even though their schema constraints already reject them structurally.
     for filename, invariant in [
-        ("invariant-registry.duplicate-id.json", "REG-C-001"),
-        ("invariant-registry.cross-field-mismatch.json", "REG-C-002"),
         ("invariant-registry.active-deprecation.json", "REG-C-003"),
         ("invariant-registry.deprecated-no-deprecation.json", "REG-C-003"),
     ]:
@@ -100,15 +167,21 @@ def main():
         data = json.loads(p.read_text())
         errors = semantic_errors(data)
         hit = any(code == invariant for code, _ in errors)
-        report["semantic_tests"].append({"fixture": filename, "invariant": invariant, "expected": "FAIL", "result": "FAIL" if hit else "PASS", "errors": errors})
+        report["semantic_tests"].append({
+            "fixture": filename,
+            "invariant": invariant,
+            "expected": "FAIL",
+            "result": "FAIL" if hit else "PASS",
+            "errors": errors,
+        })
 
     failed = []
-    for t in report["schema_tests"]:
-        if (t["expected"] == "PASS" and t["result"] != "PASS") or (t["expected"] == "FAIL" and t["result"] != "FAIL"):
+    for t in report["schema_tests"] + report["semantic_tests"]:
+        expected = t["expected"]
+        result = t["result"]
+        if (expected == "PASS" and result != "PASS") or (expected == "FAIL" and result != "FAIL"):
             failed.append(t)
-    for t in report["semantic_tests"]:
-        if (t["expected"] == "PASS" and t["result"] != "PASS") or (t["expected"] == "FAIL" and t["result"] != "FAIL"):
-            failed.append(t)
+
     report["verdict"] = "PASS" if not failed else "FAIL"
     report["failed_tests"] = failed
     print(json.dumps(report, indent=2, sort_keys=True))
