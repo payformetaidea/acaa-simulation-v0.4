@@ -1,1 +1,16 @@
-{"schema_version":"1.0","contract_id":"M-P1","contract_version":"1.1.0","invariants":[{"id":"MP1-C-001","statement":"cross-field mismatch","type":"structural","status":"active","introduced_in":{"contract_id":"OTHER","contract_version":"1.1.0"},"normative_source":{"document":"doc.md","section":"1"},"conformance_vectors":["MP1-V-001"]}]}
+{
+  "schema_version": "1.0",
+  "contract_id": "M-P1",
+  "contract_version": "1.1.0",
+  "invariants": [
+    {
+      "id": "MP1-C-001",
+      "statement": "cross-field mismatch",
+      "type": "structural",
+      "status": "active",
+      "introduced_in": {"contract_id": "OTHER-CONTRACT", "contract_version": "1.1.0"},
+      "normative_source": {"document": "doc.md", "section": "1"},
+      "conformance_vectors": ["MP1-V-001"]
+    }
+  ]
+}
