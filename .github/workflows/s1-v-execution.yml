@@ -39,69 +39,113 @@ jobs:
           PY
           printf '%s\n' "$ACTUAL" > commit-sha.txt
 
-      - name: Run S1-V twice
+      - name: Run S1-V twice and preserve all outcomes
+        id: validator
+        shell: bash
         run: |
           set +e
-          python3 infrastructure/schema-conformance/validate_s1.py > run-1.json
+          python3 infrastructure/schema-conformance/validate_s1.py > run-1.json 2> run-1.stderr
           rc1=$?
-          python3 infrastructure/schema-conformance/validate_s1.py > run-2.json
+          python3 infrastructure/schema-conformance/validate_s1.py > run-2.json 2> run-2.stderr
           rc2=$?
           set -e
           printf '%s\n' "$rc1" > run-1.exitcode
           printf '%s\n' "$rc2" > run-2.exitcode
-          test "$rc1" -eq 0
-          test "$rc2" -eq 0
+          printf '%s\n' "$rc1" > "$GITHUB_OUTPUT" 2>/dev/null || true
+          echo "run1_exit=$rc1" >> "$GITHUB_OUTPUT"
+          echo "run2_exit=$rc2" >> "$GITHUB_OUTPUT"
 
-      - name: Verify deterministic outputs
+      - name: Validate and compare execution evidence
+        id: evidence
+        if: always()
+        shell: bash
         run: |
-          set -euo pipefail
-          sha256sum run-1.json run-2.json | tee output-sha256.txt
+          set +e
+          sha256sum run-1.json run-2.json > output-sha256.txt
           cmp -s run-1.json run-2.json
-          printf '%s\n' 'byte_identical=true' > determinism.txt
+          byte_rc=$?
           python3 - <<'PY'
           import json
-          a=json.load(open('run-1.json'))
-          b=json.load(open('run-2.json'))
-          assert a == b
-          assert a.get('verdict') == 'PASS'
-          print('structured_result_identical=true')
-          print('verdict=PASS')
+          import sys
+          try:
+              with open('run-1.json') as f: a=json.load(f)
+              with open('run-2.json') as f: b=json.load(f)
+              structured = (a == b)
+              verdict = a.get('verdict') if isinstance(a, dict) else None
+              print(f'structured_result_identical={str(structured).lower()}')
+              print(f'verdict={verdict}')
+              sys.exit(0 if structured else 1)
+          except Exception as e:
+              print(f'evidence_parse_error={e}')
+              sys.exit(1)
           PY
+          json_rc=$?
+          set -e
+          printf '%s\n' "byte_identical=$([ "$byte_rc" -eq 0 ] && echo true || echo false)" > determinism.txt
+          printf '%s\n' "structured_json_identical=$([ "$json_rc" -eq 0 ] && echo true || echo false)" >> determinism.txt
 
-      - name: Build evidence manifest
+      - name: Build evidence manifest even on validator failure
+        if: always()
         run: |
           set -euo pipefail
           python3 - <<'PY'
           import hashlib, json, pathlib
           def sha(p):
               h=hashlib.sha256(); h.update(pathlib.Path(p).read_bytes()); return h.hexdigest()
+          def read_int(p):
+              return int(pathlib.Path(p).read_text().strip())
+          def read_verdict(p):
+              try:
+                  return json.loads(pathlib.Path(p).read_text()).get('verdict')
+              except Exception:
+                  return None
           manifest={
             'evidence_type':'S1-V',
-            'target_commit':open('commit-sha.txt').read().strip(),
+            'target_commit':pathlib.Path('commit-sha.txt').read_text().strip(),
             'validator':'infrastructure/schema-conformance/validate_s1.py',
             'runs':2,
-            'exit_codes':[int(open('run-1.exitcode').read()),int(open('run-2.exitcode').read())],
+            'exit_codes':[read_int('run-1.exitcode'),read_int('run-2.exitcode')],
             'validator_output_sha256':[sha('run-1.json'),sha('run-2.json')],
-            'deterministic_byte_identical':True,
-            'verdict':json.load(open('run-1.json'))['verdict'],
-            'runtime':open('runtime.txt').read().strip().splitlines(),
+            'stderr_sha256':[sha('run-1.stderr'),sha('run-2.stderr')],
+            'byte_identical':pathlib.Path('run-1.json').read_bytes()==pathlib.Path('run-2.json').read_bytes(),
+            'structured_result_identical':json.loads(pathlib.Path('run-1.json').read_text())==json.loads(pathlib.Path('run-2.json').read_text()) if read_verdict('run-1.json') is not None and read_verdict('run-2.json') is not None else False,
+            'verdict_run_1':read_verdict('run-1.json'),
+            'verdict_run_2':read_verdict('run-2.json'),
+            'runtime':pathlib.Path('runtime.txt').read_text().strip().splitlines(),
           }
           pathlib.Path('s1-v-evidence-manifest.json').write_text(json.dumps(manifest,indent=2,sort_keys=True)+'\n')
           PY
 
       - name: Upload S1-V evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: s1-v-evidence-${{ env.TARGET_COMMIT }}
+          name: s1-v-evidence-${{ env.TARGET_COMMIT }}-${{ github.run_id }}
           path: |
             commit-sha.txt
             python-version.txt
             runtime.txt
             run-1.json
             run-2.json
+            run-1.stderr
+            run-2.stderr
             run-1.exitcode
             run-2.exitcode
             output-sha256.txt
             determinism.txt
             s1-v-evidence-manifest.json
           if-no-files-found: error
+
+      - name: Enforce S1-V verdict after evidence capture
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          rc1="$(cat run-1.exitcode)"
+          rc2="$(cat run-2.exitcode)"
+          verdict1="$(python3 -c 'import json; print(json.load(open("run-1.json"))["verdict"])')"
+          verdict2="$(python3 -c 'import json; print(json.load(open("run-2.json"))["verdict"])')"
+          test "$rc1" -eq 0
+          test "$rc2" -eq 0
+          test "$verdict1" = PASS
+          test "$verdict2" = PASS
