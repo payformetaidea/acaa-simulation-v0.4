@@ -1,0 +1,32 @@
+name: M-P1 v1.1 / Cross-Runtime Verification
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches:
+      - research/mp1-v1.1-controlled-fix
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cross-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cross-runtime semantic parity
+        run: python3 -m unittest -v tests/test_mp1_v1_1_cross_runtime.py

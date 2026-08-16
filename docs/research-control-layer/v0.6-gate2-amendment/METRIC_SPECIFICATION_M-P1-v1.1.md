@@ -5,76 +5,55 @@
 **Supersedes for amendment review:** `M-P1-v1.0` only after successor freeze  
 **Baseline:** ACAA v0.5.0 (`de7d11ed9457ede84c1954aa70a59331bf07b72e`)  
 **Frozen protocol reference:** `v0.6-gate2-protocol`  
-**Amendment branch:** `research/gate2-mp1-v1.1-amendment`
+**Amendment branch:** `research/mp1-v1.1-amendment`
 
 ## 1. Purpose
 
-M-P1-v1.1 preserves the measurement semantics of M-P1-v1.0 while correcting the CAU identifier schema so that raw identifiers emitted by the immutable ACAA v0.5.0 baseline can be evaluated without rewriting, normalization into another identifier, adapter substitution, or baseline modification.
+M-P1-v1.1 preserves the measurement semantics of M-P1-v1.0 while correcting the CAU identifier schema and input boundary so that the raw O2 artifact emitted by the immutable ACAA v0.5.0 baseline can be evaluated directly.
 
-This document is a successor **candidate specification**. It is not a new protocol freeze and does not authorize execution.
+No adapter, alternate identity source, identifier rewriting, hexadecimal conversion, or baseline modification is permitted.
 
-## 2. Source of the Identifier Contract
+This is a successor candidate specification. It is not a protocol freeze and does not authorize execution.
 
-The identifier contract is derived from:
+## 2. Canonical O2 input boundary
 
-`docs/research-control-layer/v0.6-gate2-amendment/BASELINE_IDENTITY_CONTRACT_AUDIT.md`
-
-The audit establishes the following observed baseline facts:
+M-P1-v1.1 consumes the canonical O2 evidence artifact directly:
 
 ```text
-Identity field:      CAURecord.cau_id
-Generation source:   simulator-local cau_seq
-Representation:      CAU-{cau_seq:06d}
-Identifier class:    sequential string identifier
-Observed width:      6 decimal digits after `CAU-`
+artifact root
+├── records[]
+│   └── cau_id
+└── aggregate.cau_records
 ```
 
-No transformation of the baseline identifier is part of M-P1-v1.1.
+The authoritative identity field is `records[].cau_id`.
+
+The canonical O2 contract is:
+
+```text
+records[].cau_id      = ^CAU-[0-9]{6}$
+aggregate.cau_records = integer count
+aggregate.cau_records = len(records)
+```
+
+The retained baseline artifact is `9147901382` and its exact JSON bytes are provenance-verified separately.
 
 ## 3. Definition
 
 ```text
-M-P1(r) = |{c ∈ CAU : c ∈ output(r)}|
+M-P1(r) = |{ c ∈ CAU : c ∈ records(r) }|
 ```
 
-M-P1 is the cardinality of the set of unique canonical CAU identifiers present in a run's manifest.
+M-P1 is the cardinality of the set of unique canonical CAU identifiers present in a valid O2 run artifact.
 
-The measurement answers only the cardinality question. Equal cardinality does not establish set identity, output-content consistency, or semantic equivalence.
+Equal cardinality does not establish set identity, output-content consistency, or semantic equivalence.
 
-## 4. CAU_ID Schema
+## 4. Canonicalization
 
-The successor schema is derived directly from the observed baseline representation:
-
-```yaml
-pattern: "^CAU-[0-9]{6}$"
-encoding: UTF-8
-canonicalization: trim whitespace, then uppercase
-```
-
-### 4.1 Raw baseline preservation
-
-The value extracted from the baseline manifest is the source value. M-P1 does not rewrite a valid baseline identifier into a different identifier representation.
-
-For example:
+Canonicalization is limited to the textual parsing boundary:
 
 ```text
-CAU-000001  → accepted as CAU-000001
-```
-
-The following is **not** performed:
-
-```text
-CAU-000001  → CAU-0000000000000001
-CAU-000001  → hexadecimal conversion
-CAU-000001  → hash-derived identifier
-```
-
-### 4.2 Canonicalization boundary
-
-Canonicalization is limited to the metric's textual parsing boundary:
-
-```text
-raw field value
+raw cau_id
     ↓
 trim surrounding whitespace
     ↓
@@ -83,103 +62,80 @@ uppercase
 validate against ^CAU-[0-9]{6}$
 ```
 
-Because the baseline representation is already uppercase and decimal, canonicalization does not alter a normally serialized baseline `cau_id`.
+No digits may be changed, padded, removed, converted to hexadecimal, hashed, or replaced by another identifier.
 
-It is not permitted to change digits, pad digits, remove digits, replace prefixes, or derive a new identifier.
+For normally serialized baseline data, canonicalization is a no-op.
 
-## 5. Extraction Algorithm
+## 5. Structural validation
 
-The extraction boundary is the serialized CAU record's `cau_id` field.
+The O2 artifact is usable for M-P1 extraction only when all of the following hold:
 
 ```text
-parse(manifest)
-    ↓
-locate CAU records
-    ↓
-read record.cau_id
-    ↓
-trim surrounding whitespace
-    ↓
-uppercase
-    ↓
-validate against ^CAU-[0-9]{6}$
-    ↓
-collect valid canonical values
-    ↓
-unique(set)
-    ↓
-len(set)
+artifact root is an object
+records exists and is an array
+aggregate exists and is an object
+aggregate.cau_records is an integer, excluding booleans
+aggregate.cau_records == len(records)
 ```
 
-No filename, execution ID, seed, timestamp, array position, wrapper ID, or alternate identifier may substitute for `record.cau_id`.
+Missing or unusable `records` is `DATA_INTEGRITY_FAIL`.
 
-## 6. Validation Boundary
+Missing or unusable `aggregate` is `DATA_INTEGRITY_FAIL`.
 
-A manifest is valid for M-P1 extraction only when its structure is parseable and CAU records can be deterministically classified under the v1.1 schema.
+An aggregate/record cardinality mismatch is `DATA_INTEGRITY_FAIL`.
 
-Rules:
+A malformed JSON artifact is `DATA_INTEGRITY_FAIL`.
+
+## 6. Record validation and metric semantics
+
+For every raw record:
+
+- a non-object record is invalid;
+- a missing, null, empty, or non-string `cau_id` is invalid;
+- a non-matching identifier is invalid and excluded from the valid identifier set;
+- a valid identifier is canonicalized and collected;
+- duplicate valid canonical identifiers are counted once, because M-P1 is a unique-cardinality metric.
+
+The following states are binding:
 
 ```text
-empty/null ID
-    → FAILED
+valid records + zero records
+    -> VALID / ZERO_COUNT
+    -> M-P1 = 0
 
-malformed/non-matching ID
-    → excluded and logged
+some valid identifiers + some invalid records
+    -> VALID
+    -> M-P1 = number of unique valid canonical identifiers
 
-duplicate valid ID
-    → counted once
+all records invalid
+    -> DATA_INTEGRITY_FAIL
+    -> M-P1 = null
 
-valid manifest structure with zero CAU records
-    → M-P1 = 0
-    → VALID execution + ZERO_COUNT
-
-all CAU entries malformed/non-matching
-    → DATA_INTEGRITY_FAIL
-    → do NOT record M-P1 = 0
-
-negative M-P1
-    → DATA_INTEGRITY_FAIL
+missing/unusable records container
+    -> DATA_INTEGRITY_FAIL
+    -> M-P1 = null
 ```
 
-The distinction between a valid measured zero and an unusable manifest is binding for v1.1.
+Deduplication is a metric operation over valid canonical identifiers; it must never be used to repair a malformed record container or bypass structural validation.
 
-## 7. Determinism
+## 7. Independent implementation requirement
 
-For the same manifest artifact and the same M-P1-v1.1 algorithm implementation, extraction MUST produce the same metric value and the same validation classification.
+Python and JavaScript implementations must independently consume the same serialized O2 artifact boundary and produce identical classification and metric value for identical bytes.
 
-No runtime entropy, wall-clock time, seed regeneration, or external state may influence M-P1 extraction.
+They must not import or call the Gate-2 runner and must not share runtime state.
 
-## 8. Aggregation
+## 8. Determinism
 
-The existing Gate-2 statistical definitions are preserved unless formally amended elsewhere:
+For the same verified artifact bytes and the same M-P1-v1.1 algorithm, extraction MUST produce the same classification and metric value.
 
-```text
-n_s = number of valid runs for seed s
-μ_s = mean(M-P1) within seed
-σ_s = sample SD within seed
-CV_s = σ_s / μ_s, if μ_s > 0
-CV_s = UNDEFINED, if μ_s = 0
+No runtime entropy, wall-clock time, seed regeneration, or external state may influence extraction.
 
-N_total = Σ n_s
-μ_total = mean(M-P1) across valid runs
-```
+## 9. Provenance and hashing
 
-Frozen SAP definitions retained for amendment review:
+The artifact hash is the SHA-256 digest of the exact O2 manifest file bytes:
 
 ```text
-CV_within  = sqrt(MS_W) / μ_total
-CV_total   = sqrt(σ̂²_total) / μ_total
-CV_between = SD(μ_s) / μ_total
-```
-
-If `μ_total = 0`, return `ZERO_DENOMINATOR`; CVs are undefined and no CV decision is made.
-
-## 9. Hashing and Provenance
-
-The artifact hash remains the SHA-256 digest of the exact manifest file bytes:
-
-```text
-artifact_sha256 = SHA256(manifest_file)
+artifact_sha256 = SHA256(manifest_file_bytes)
 ```
 
 The metric provenance hash uses the successor algorithm version explicitly:
@@ -194,48 +150,49 @@ canonical_string =
 metric_hash = SHA256(canonical_string.encode("utf-8"))
 ```
 
-The use of `M-P1-v1.1` in the canonical hash string prevents a v1.0 and v1.1 metric record from being represented as the same algorithm-versioned provenance object.
+Hashes are recorded in applicable evidence artifacts only after the successor protocol passes verification and receives a new freeze.
 
-Hashes are to be recorded in the applicable evidence artifacts only after the successor protocol has passed verification and received a new freeze.
+## 10. Compatibility statement
 
-## 10. Compatibility Statement
-
-M-P1-v1.1 is designed to be compatible with the observed raw baseline identifier contract:
-
-| Requirement | v0.5.0 baseline | M-P1-v1.1 | Result |
+| Requirement | v0.5.0 O2 baseline | M-P1-v1.1 | Result |
 |---|---|---|---|
-| Identity field | `CAURecord.cau_id` | `CAURecord.cau_id` | PASS |
+| Identity field | `records[].cau_id` | `records[].cau_id` | PASS |
 | Representation | `CAU-{cau_seq:06d}` | `^CAU-[0-9]{6}$` | PASS |
-| Identifier transformation | none | none | PASS |
-| Baseline mutation | none | none | PASS |
+| Input root | O2 artifact | O2 artifact | PASS |
+| Identifier transformation | none | none beyond parse-boundary canonicalization | PASS |
 | 16-hex requirement | absent | not required | PASS |
+| Aggregate invariant | `aggregate.cau_records == len(records)` | required | PASS |
 
-This is a **specification-level compatibility statement**, not an independent verification result. Independent verification remains mandatory.
+This is a specification-level compatibility statement. Independent verification remains mandatory.
 
-## 11. Non-Claims
+## 11. Non-claims
 
 This specification does not claim:
 
-- that M-P1-v1.1 has been independently verified;
-- that the amendment has been approved;
-- that a new protocol freeze exists;
-- that execution is authorized;
-- that any Gate-2 evidence exists;
+- that M-P1-v1.1 is frozen;
+- that Gate-2 execution is authorized;
+- that any Gate-2 experimental evidence exists;
 - that H-003 or H-004 is supported or falsified.
 
-## 12. Required Verification Sequence
+## 12. Required verification sequence
 
 ```text
-Baseline Identity Contract Audit       PASS
+Baseline Identity Contract Audit
         ↓
-M-P1-v1.1 Specification                DRAFT
+Canonical O2 artifact provenance
         ↓
-Independent Implementation #1
-Independent Implementation #2
+M-P1-v1.1 Specification
         ↓
-Compatibility + deterministic verification
+Independent Python implementation
+Independent JavaScript implementation
+        ↓
+Cross-runtime parity
+        ↓
+Exact raw O2 artifact replay
         ↓
 Amendment Review
+        ↓
+Post-Mutation Audit
         ↓
 New Protocol Freeze
         ↓
@@ -244,4 +201,4 @@ New Execution Authorization
 33 Runs
 ```
 
-Until those gates are completed, execution and evidence generation remain prohibited.
+Until all preceding gates are complete, execution and evidence generation remain prohibited.

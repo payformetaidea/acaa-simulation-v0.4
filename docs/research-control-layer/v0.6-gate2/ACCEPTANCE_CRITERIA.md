@@ -74,7 +74,7 @@ A material evidence-integrity failure means the affected hypothesis is `NOT EVAL
 
 ## AC-007 — Metric determinism
 
-M-P1 extraction must be deterministic and independently reproducible from the immutable manifest using `M-P1-v1.0`. Failure is an evidence/measurement-integrity problem and blocks evaluation.
+M-P1 extraction must be deterministic and independently reproducible from the immutable manifest using the **currently proposed successor `M-P1-v1.1`**. Failure is an evidence/measurement-integrity problem and blocks evaluation. This criterion becomes binding only when v1.1 is frozen; until then it is a pre-freeze consistency requirement.
 
 ## AC-008 — Outlier robustness
 

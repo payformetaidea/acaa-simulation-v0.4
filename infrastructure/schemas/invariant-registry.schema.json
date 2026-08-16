@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/payformetaidea/acaa-simulation-v0.4/infrastructure/schemas/invariant-registry.schema.json",
+  "title": "Invariant Registry Schema",
+  "description": "Schema for registering normative invariants of versioned contracts",
+  "schema_version": "1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "contract_id", "contract_version", "invariants"],
+  "properties": {
+    "schema_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+$"},
+    "contract_id": {"type": "string", "pattern": "^[A-Z][A-Z0-9]*-[A-Z][A-Z0-9]*$"},
+    "contract_version": {"type": "string", "description": "Semantic version (MAJOR.MINOR.PATCH)", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "invariants": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "statement", "type", "status", "introduced_in", "normative_source", "conformance_vectors"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[A-Z][A-Z0-9]*-[A-Z]-[0-9]{3}$"},
+          "statement": {"type": "string", "minLength": 1},
+          "type": {"type": "string", "enum": ["structural", "semantic", "numeric", "provenance", "conformance", "governance"]},
+          "status": {"type": "string", "enum": ["proposed", "candidate", "active", "deprecated", "retired"]},
+          "introduced_in": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["contract_id", "contract_version"],
+            "properties": {
+              "contract_id": {"type": "string", "pattern": "^[A-Z][A-Z0-9]*-[A-Z][A-Z0-9]*$"},
+              "contract_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+              "supersedes": {"type": "array", "items": {"type": "string", "pattern": "^[A-Z][A-Z0-9]*-[A-Z]-[0-9]{3}$"}}
+            }
+          },
+          "normative_source": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["document", "section"],
+            "properties": {
+              "document": {"type": "string", "minLength": 1},
+              "section": {"type": "string", "minLength": 1},
+              "commit_sha": {"type": "string", "pattern": "^[a-f0-9]{40}$"}
+            }
+          },
+          "conformance_vectors": {"type": "array", "items": {"type": "string", "pattern": "^[A-Z][A-Z0-9]*-V-[0-9]{3}$"}, "minItems": 1},
+          "deprecation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["reason", "superseded_by"],
+            "properties": {
+              "reason": {"type": "string", "minLength": 1},
+              "superseded_by": {"type": "string", "pattern": "^[A-Z][A-Z0-9]*-[A-Z]-[0-9]{3}$"}
+            }
+          }
+        },
+        "allOf": [
+          {"if": {"properties": {"status": {"const": "active"}}}, "then": {"not": {"required": ["deprecation"]}}},
+          {"if": {"properties": {"status": {"const": "deprecated"}}}, "then": {"required": ["deprecation"]}}
+        ]
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "created_at": {"type": "string", "format": "date-time"},
+        "created_by": {"type": "string"},
+        "source_commit": {"type": "string", "pattern": "^[a-f0-9]{40}$"}
+      }
+    }
+  }
+}

@@ -4,14 +4,37 @@ const fs = require("fs");
 
 const PATTERN = /^CAU-[0-9]{6}$/;
 
-function extract(manifest) {
-  const records = Array.isArray(manifest.cau_records) ? manifest.cau_records : null;
-  if (records === null) return { status: "DATA_INTEGRITY_FAIL", m_p1: null };
+function extract(artifact) {
+  if (artifact === null || typeof artifact !== "object" || Array.isArray(artifact)) {
+    return { status: "DATA_INTEGRITY_FAIL", m_p1: null };
+  }
+
+  if (!Object.prototype.hasOwnProperty.call(artifact, "records")) {
+    return { status: "DATA_INTEGRITY_FAIL", m_p1: null };
+  }
+  const records = artifact.records;
+  if (!Array.isArray(records)) return { status: "DATA_INTEGRITY_FAIL", m_p1: null };
+
+  if (!Object.prototype.hasOwnProperty.call(artifact, "aggregate") ||
+      artifact.aggregate === null ||
+      typeof artifact.aggregate !== "object" ||
+      Array.isArray(artifact.aggregate)) {
+    return { status: "DATA_INTEGRITY_FAIL", m_p1: null };
+  }
+  const cauRecords = artifact.aggregate.cau_records;
+  if (!Number.isInteger(cauRecords) || typeof cauRecords === "boolean") {
+    return { status: "DATA_INTEGRITY_FAIL", m_p1: null };
+  }
+  if (cauRecords !== records.length) {
+    return { status: "DATA_INTEGRITY_FAIL", m_p1: null };
+  }
 
   const valid = [];
   let invalid = 0;
   for (const record of records) {
-    const raw = record && typeof record === "object" ? record.cau_id : undefined;
+    const raw = record && typeof record === "object" && !Array.isArray(record)
+      ? record.cau_id
+      : undefined;
     if (typeof raw !== "string" || raw.trim() === "") {
       invalid += 1;
       continue;
@@ -27,5 +50,12 @@ function extract(manifest) {
   return { status: "VALID", m_p1: new Set(valid).size };
 }
 
-const manifest = JSON.parse(fs.readFileSync(0, "utf8"));
-process.stdout.write(JSON.stringify(extract(manifest)) + "\n");
+let artifact;
+try {
+  artifact = JSON.parse(fs.readFileSync(0, "utf8"));
+} catch (error) {
+  process.stdout.write(JSON.stringify({ status: "DATA_INTEGRITY_FAIL", m_p1: null }) + "\n");
+  process.exit(1);
+}
+
+process.stdout.write(JSON.stringify(extract(artifact)) + "\n");

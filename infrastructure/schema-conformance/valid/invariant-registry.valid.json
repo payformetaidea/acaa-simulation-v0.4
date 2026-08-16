@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "contract_id": "M-P1",
+  "contract_version": "1.1.0",
+  "invariants": [
+    {
+      "id": "MP1-C-001",
+      "statement": "Invariant IDs MUST be unique within a registry.",
+      "type": "structural",
+      "status": "active",
+      "introduced_in": {"contract_id": "M-P1", "contract_version": "1.1.0"},
+      "normative_source": {"document": "M-P1-v1.1.md", "section": "Invariant Registry", "commit_sha": "80c4e38edd094bec7b32a2d44f8f24ae6c236967"},
+      "conformance_vectors": ["MP1-V-001"]
+    },
+    {
+      "id": "MP1-C-002",
+      "statement": "Each invariant introduction MUST match the registry contract identity.",
+      "type": "structural",
+      "status": "active",
+      "introduced_in": {"contract_id": "M-P1", "contract_version": "1.1.0"},
+      "normative_source": {"document": "M-P1-v1.1.md", "section": "Invariant Registry", "commit_sha": "80c4e38edd094bec7b32a2d44f8f24ae6c236967"},
+      "conformance_vectors": ["MP1-V-002"]
+    }
+  ],
+  "metadata": {
+    "created_at": "2026-08-16T14:30:00Z",
+    "created_by": "S1-R2",
+    "source_commit": "80c4e38edd094bec7b32a2d44f8f24ae6c236967"
+  }
+}
