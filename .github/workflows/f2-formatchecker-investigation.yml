@@ -1,0 +1,58 @@
+name: F2 FormatChecker Runtime Investigation
+
+on:
+  push:
+    branches:
+      - research/mp1-v1.1-s1v-f1-fixture-reconciliation
+  workflow_dispatch:
+
+jobs:
+  f2:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout controlled investigation branch
+        uses: actions/checkout@v4
+        with:
+          ref: research/mp1-v1.1-s1v-f1-fixture-reconciliation
+          fetch-depth: 0
+
+      - name: Verify frozen validator baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET=d1cef3768ccaa39525a0c23e1a9b94c3528a8995
+          git fetch origin "$TARGET" --depth=1 || true
+          ACTUAL=$(git show "$TARGET:infrastructure/schema-conformance/validate_s1.py" | sha256sum | awk '{print $1}')
+          CURRENT=$(sha256sum infrastructure/schema-conformance/validate_s1.py | awk '{print $1}')
+          test "$ACTUAL" = "$CURRENT"
+          echo "validator_sha256=$CURRENT"
+
+      - name: Capture exact runtime
+        shell: bash
+        run: |
+          python --version
+          python -c 'import jsonschema,sys; print("jsonschema=" + jsonschema.__version__); print("python=" + sys.version)'
+
+      - name: Install dependency
+        run: python -m pip install --disable-pip-version-check 'jsonschema==4.23.0'
+
+      - name: Run layered FormatChecker probe
+        shell: bash
+        run: |
+          set -uo pipefail
+          python infrastructure/schema-conformance/investigate_formatchecker.py > f2-report.txt 2> f2-report.stderr
+          rc=$?
+          echo "$rc" > f2-exit-code.txt
+          exit "$rc"
+
+      - name: Upload F2 investigation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f2-formatchecker-evidence-${{ github.sha }}-${{ github.run_id }}
+          path: |
+            f2-report.txt
+            f2-report.stderr
+            f2-exit-code.txt
+          if-no-files-found: error
+          retention-days: 90
