@@ -1,0 +1,26 @@
+name: S1-A Architecture Audit v2
+on:
+  push:
+    branches:
+      - research/mp1-v1.1-s1v-f2.4-format-contract-reconciliation
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  s1-a:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Run executable architecture audit
+        run: |
+          python infrastructure/schema-conformance/s1_a_architecture_audit.py > s1-a-report.json
+          cat s1-a-report.json
+      - name: Upload audit evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: s1-a-architecture-audit-v2-${{ github.sha }}
+          path: s1-a-report.json
+          if-no-files-found: error
