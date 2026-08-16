@@ -11,7 +11,7 @@ from jsonschema import Draft202012Validator, FormatChecker
 
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA = ROOT / "infrastructure/schemas/invariant-registry.schema.json"
-FIXTURE = ROOT / "infrastructure/schema-conformance/invalid/invariant-registry.invalid-date-time.json"
+FIXTURE = ROOT / "infrastructure/schema-conformance/annotation/invariant-registry.invalid-date-time.json"
 VALIDATOR = ROOT / "infrastructure/schema-conformance/validate_s1.py"
 FORMAT_ASSERTION_VOCAB = "https://json-schema.org/draft/2020-12/vocab/format-assertion"
 
