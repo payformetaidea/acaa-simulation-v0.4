@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Independent reference implementation for M-P1-v1.1 verification.
 
-This verifier performs metric extraction only. It never rewrites CAU identifiers.
+The implementation follows the v1.1 draft boundary: canonicalization is
+limited to trimming surrounding whitespace and uppercasing; valid duplicate
+identifiers are counted once; missing or unusable CAU-record containers fail
+closed. No identifier rewriting or alternate identity source is permitted.
 """
 import json
 import re
@@ -11,7 +14,13 @@ PATTERN = re.compile(r"^CAU-[0-9]{6}$")
 
 
 def extract(manifest):
-    records = manifest.get("cau_records", [])
+    if not isinstance(manifest, dict):
+        return "DATA_INTEGRITY_FAIL", None
+
+    if "cau_records" not in manifest:
+        return "DATA_INTEGRITY_FAIL", None
+
+    records = manifest["cau_records"]
     if not isinstance(records, list):
         return "DATA_INTEGRITY_FAIL", None
 
@@ -37,10 +46,16 @@ def extract(manifest):
 
 
 def main():
-    manifest = json.load(sys.stdin)
+    try:
+        manifest = json.load(sys.stdin)
+    except json.JSONDecodeError:
+        print(json.dumps({"status": "DATA_INTEGRITY_FAIL", "m_p1": None}, sort_keys=True))
+        return 1
+
     status, value = extract(manifest)
     print(json.dumps({"status": status, "m_p1": value}, sort_keys=True))
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
