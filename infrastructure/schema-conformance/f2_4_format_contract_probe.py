@@ -1,13 +1,7 @@
 #!/usr/bin/env python3
-"""Evidence probe for F2.4 format-contract reconciliation.
-
-This probe does not modify the frozen validator, schema, or fixtures.
-It distinguishes schema-level format vocabulary semantics from
-implementation-level FormatChecker behavior.
-"""
+"""Evidence probe for F2.4 format-contract reconciliation."""
 import hashlib
 import importlib.metadata
-import inspect
 import json
 import platform
 import sys
@@ -19,7 +13,6 @@ ROOT = Path(__file__).resolve().parents[2]
 SCHEMA = ROOT / "infrastructure/schemas/invariant-registry.schema.json"
 FIXTURE = ROOT / "infrastructure/schema-conformance/invalid/invariant-registry.invalid-date-time.json"
 VALIDATOR = ROOT / "infrastructure/schema-conformance/validate_s1.py"
-
 FORMAT_ASSERTION_VOCAB = "https://json-schema.org/draft/2020-12/vocab/format-assertion"
 
 
@@ -44,17 +37,20 @@ def find_formats(node, path="$", out=None):
 def validate_with(schema, data, checker):
     validator = Draft202012Validator(schema, format_checker=checker)
     errors = list(validator.iter_errors(data))
-    return {
-        "errors": len(errors),
-        "messages": [e.message for e in errors],
-        "result": "FAIL" if errors else "PASS",
-    }
+    return {"errors": len(errors), "messages": [e.message for e in errors], "result": "FAIL" if errors else "PASS"}
+
+
+def primitive_check(checker, value):
+    try:
+        checker.check("date-time", value)
+        return {"result": "PASS", "exception": None}
+    except Exception as exc:
+        return {"result": "FAIL", "exception": type(exc).__name__ + ": " + str(exc)}
 
 
 def main():
     schema = json.loads(SCHEMA.read_text())
     fixture = json.loads(FIXTURE.read_text())
-
     checker = FormatChecker()
     draft_checker = Draft202012Validator.FORMAT_CHECKER
 
@@ -92,35 +88,20 @@ def main():
             "generic_keys": sorted(checker.checkers.keys()),
             "draft_keys": sorted(draft_checker.checkers.keys()),
         },
-        "tests": {},
+        "tests": {
+            "primitive_generic": primitive_check(checker, fixture["metadata"]["created_at"]),
+            "primitive_draft": primitive_check(draft_checker, fixture["metadata"]["created_at"]),
+            "actual_schema_generic_checker": validate_with(schema, fixture, checker),
+            "actual_schema_draft_checker": validate_with(schema, fixture, draft_checker),
+            "explicit_format_assertion_schema_generic_checker": validate_with(explicit_assertion_schema, fixture, checker),
+            "explicit_format_assertion_schema_draft_checker": validate_with(explicit_assertion_schema, fixture, draft_checker),
+        },
     }
-
-    invalid_value = fixture["metadata"]["created_at"]
-    report["tests"]["primitive_invalid_date_time"] = {
-        "value": invalid_value,
-        "generic": "PASS" if checker.check("date-time", invalid_value) is None else "FAIL",
-    }
-    try:
-        checker.check("date-time", invalid_value)
-        report["tests"]["primitive_invalid_date_time"]["generic_exception"] = None
-    except Exception as exc:
-        report["tests"]["primitive_invalid_date_time"]["generic_exception"] = type(exc).__name__ + ": " + str(exc)
-
-    report["tests"]["actual_schema_generic_checker"] = validate_with(schema, fixture, checker)
-    report["tests"]["actual_schema_draft_checker"] = validate_with(schema, fixture, draft_checker)
-    report["tests"]["explicit_format_assertion_schema_generic_checker"] = validate_with(
-        explicit_assertion_schema, fixture, checker
-    )
-    report["tests"]["explicit_format_assertion_schema_draft_checker"] = validate_with(
-        explicit_assertion_schema, fixture, draft_checker
-    )
 
     if schema.get("$vocabulary", {}).get(FORMAT_ASSERTION_VOCAB) is True:
         classification = "FORMAT_ASSERTION_EXPLICIT_IN_SCHEMA"
     else:
         classification = "FORMAT_IS_NOT_NORMATIVE_ASSERTION_IN_FROZEN_SCHEMA"
-
-    if classification == "FORMAT_IS_NOT_NORMATIVE_ASSERTION_IN_FROZEN_SCHEMA":
         if report["tests"]["actual_schema_generic_checker"]["result"] == "PASS":
             classification += "+RUNTIME_ACCEPTANCE_CONSISTENT_WITH_ANNOTATION_SEMANTICS"
         else:
