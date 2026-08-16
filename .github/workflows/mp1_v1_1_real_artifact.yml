@@ -83,4 +83,9 @@ jobs:
           test "$(python3 -c 'import json; print(json.load(open("/tmp/mp1_javascript.json"))["status"])')" = "VALID"
           test "$(python3 -c 'import json; print(json.load(open("/tmp/mp1_python.json"))["m_p1"])')" = "${EXPECTED_MP1}"
           test "$(python3 -c 'import json; print(json.load(open("/tmp/mp1_javascript.json"))["m_p1"])')" = "${EXPECTED_MP1}"
-          cmp --silent /tmp/mp1_python.json /tmp/mp1_javascript.json
+          python3 - <<'PY'
+          import json
+          py = json.load(open('/tmp/mp1_python.json'))
+          js = json.load(open('/tmp/mp1_javascript.json'))
+          assert py == js, (py, js)
+          PY
