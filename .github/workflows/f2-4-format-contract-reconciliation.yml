@@ -1,0 +1,38 @@
+name: F2.4 Format Contract Reconciliation
+on:
+  push:
+    branches:
+      - research/mp1-v1.1-s1v-f2.4-format-contract-reconciliation
+  workflow_dispatch:
+jobs:
+  f2-4:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12.3'
+      - name: Install pinned dependency
+        run: python -m pip install --disable-pip-version-check 'jsonschema==4.23.0'
+      - name: Run F2.4 probe
+        run: |
+          mkdir -p f2-4-evidence
+          git rev-parse HEAD > f2-4-evidence/head.txt
+          git status --porcelain > f2-4-evidence/status.txt
+          git show d1cef3768ccaa39525a0c23e1a9b94c3528a8995:infrastructure/schema-conformance/validate_s1.py > f2-4-evidence/target-validator.py
+          git show d1cef3768ccaa39525a0c23e1a9b94c3528a8995:infrastructure/schemas/invariant-registry.schema.json > f2-4-evidence/target-schema.json
+          sha256sum f2-4-evidence/target-validator.py f2-4-evidence/target-schema.json > f2-4-evidence/frozen-target-sha256.txt
+          git rev-parse d1cef3768ccaa39525a0c23e1a9b94c3528a8995:infrastructure/schema-conformance/validate_s1.py > f2-4-evidence/target-validator-blob-sha1.txt
+          git rev-parse d1cef3768ccaa39525a0c23e1a9b94c3528a8995:infrastructure/schemas/invariant-registry.schema.json > f2-4-evidence/target-schema-blob-sha1.txt
+          python infrastructure/schema-conformance/f2_4_format_contract_probe.py > f2-4-evidence/f2-4-report.json
+          python -c "import json; d=json.load(open('f2-4-evidence/f2-4-report.json')); assert all(k in d for k in ['protocol','files','schema','validator_contract','runtime_checker','tests','classification'])"
+          sha256sum f2-4-evidence/* > f2-4-evidence/manifest-sha256.txt
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: f2.4-format-contract-evidence-${{ github.sha }}
+          path: f2-4-evidence/
+          if-no-files-found: error
