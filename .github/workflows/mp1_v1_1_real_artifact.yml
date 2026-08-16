@@ -1,0 +1,66 @@
+name: M-P1 v1.1 / Real O2 Artifact Gate
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches:
+      - research/mp1-v1.1-controlled-fix
+  workflow_dispatch:
+
+env:
+  O2_ARTIFACT_ID: "9147901382"
+  O2_EXPECTED_RECORD_COUNT: "1936"
+  O2_ARCHIVE_SHA256: "8d923bb951e60764ad9604e708c03bafdc30053da9b766c5ede6ceea7a929d81"
+  O2_JSON_SHA256: "7649e45f6484dd0a6121fe5cbe995c4d3a195a6a6f4259462af8e1e6b02d10c9"
+
+permissions:
+  contents: read
+
+auto_cancel: false
+
+jobs:
+  real-artifact-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Download retained O2 artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl --fail --silent --show-error --location \
+            --header "Accept: application/vnd.github+json" \
+            --header "Authorization: Bearer ${GH_TOKEN}" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${O2_ARTIFACT_ID}/zip" \
+            --output /tmp/o2_artifact.zip
+
+      - name: Verify GitHub artifact archive digest
+        run: |
+          echo "${O2_ARCHIVE_SHA256}  /tmp/o2_artifact.zip" | sha256sum --check --strict
+
+      - name: Extract exact retained JSON
+        run: |
+          rm -rf /tmp/o2_extract
+          mkdir -p /tmp/o2_extract
+          unzip -q /tmp/o2_artifact.zip -d /tmp/o2_extract
+          test "$(find /tmp/o2_extract -type f | wc -l)" -eq 1
+          test -f /tmp/o2_extract/o2_identity_evidence.json
+
+      - name: Verify exact JSON digest
+        run: |
+          echo "${O2_JSON_SHA256}  /tmp/o2_extract/o2_identity_evidence.json" | sha256sum --check --strict
+
+      - name: Verify canonical O2 artifact
+        run: |
+          python3 scripts/verify_o2_artifact.py \
+            /tmp/o2_extract/o2_identity_evidence.json \
+            --artifact-id "${O2_ARTIFACT_ID}" \
+            --expected-sha256 "${O2_JSON_SHA256}" \
+            --expected-record-count "${O2_EXPECTED_RECORD_COUNT}"
